@@ -116,11 +116,7 @@ class XPathParserTests extends FlatSpec {
 
   it should "parse a//." in {
     verifyPathExprParseResult("a//.",
-      LocationPathExpr(
-        RelativeLocationPath(
-          List(
-            NodeStep(NameNodeTest(QName("a")), List(Predicate(NumberExpr(1.0)))),
-            NodeStep(NameNodeTest(QName("b")), List(Predicate(EqExpr(LocationPathExpr(RelativeLocationPath(List(CurNodeStep))), LiteralExpr("abcd")))))))))
+      LocationPathExpr(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()), AbbreviatedNodeStep(CurNodeStep)))))
   }
 
 }
