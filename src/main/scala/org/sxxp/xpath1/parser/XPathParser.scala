@@ -57,7 +57,9 @@ class XPathParser extends JavaTokenParsers with PackratParsers {
       case path ~ _ ~ step => path :+ AbbreviatedNodeStep(step)
     }
 
-  def abbreviatedStep: Parser[Step] = "." ^^ (_ => CurNodeStep) | ".." ^^ (_ => ParentNodeStep)
+  def abbreviatedStep: Parser[Step] =
+    "." ^^^ CurNodeStep |
+      ".." ^^^ ParentNodeStep
 
   /*
     def abbreviatedAxisSpecifier: Parser[String] = opt("@") ^^ (_.getOrElse(""))
@@ -184,10 +186,10 @@ class XPathParser extends JavaTokenParsers with PackratParsers {
       qname
 
   def nodeType: Parser[NodeType] =
-    "comment" ^^ (_ => CommentNodeType) |
-      "text" ^^ (_ => TextNodeType) |
-      "processing-instruction" ^^ (_ => ProcessingInstructionNodeType) |
-      "node" ^^ (_ => NodeNodeType)
+    "comment" ^^^ CommentNodeType |
+      "text" ^^^ TextNodeType |
+      "processing-instruction" ^^^ ProcessingInstructionNodeType |
+      "node" ^^^ NodeNodeType
 
   // exprWhitespace
 
