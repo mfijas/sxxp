@@ -14,6 +14,6 @@ libraryDependencies ++= Seq(
 
 jacoco.settings
 
-testOptions in Test <+= (target in Test) map {
-  t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "../shippable/testresults"))
-}
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-u", "%s" format (target.value / "../shippable/testresults"))
+
+jacoco.outputDirectory in jacoco.Config := crossTarget.value / "../../shippable/codecoverage"
