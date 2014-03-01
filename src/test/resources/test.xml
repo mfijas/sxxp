@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <a>
+        <aa>someContent</aa>
+        <aa>
+            <aa/>
+        </aa>
+        <b>xyz</b>
+        <b>abcd</b>
+    </a>
+    <a>
+        <aa/>
+    </a>
+    <b>
+        <aa/>
+        <bb>
+            <aa/>
+        </bb>
+    </b>
+    <a></a>
+    <numbers>
+        <n>123</n>
+        <n>234</n>
+        <n>567</n>
+        <n/>
+    </numbers>
+</root>

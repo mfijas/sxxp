@@ -1,5 +1,16 @@
+import de.johoop.jacoco4sbt._
+import JacocoPlugin._
+
 name := "sxxp"
 
-version := "1.0"
+organization := "org.sxxp"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.0" % "test"
+version := "1.0-SNAPSHOT"
+
+libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % "2.0" % "test",
+  "org.slf4j" % "slf4j-simple" % "1.7.6"
+)
+
+jacoco.settings
+

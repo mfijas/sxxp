@@ -1,9 +1,28 @@
 package org.sxxp.xpath1.parser
 
 import scala.util.parsing.combinator.{PackratParsers, JavaTokenParsers}
+import org.sxxp.xpath1.parser.expression._
+import org.sxxp.xpath1.parser.step._
+import org.sxxp.xpath1.parser.nodetest._
+import org.sxxp.xpath1.parser.path._
+import org.sxxp.xpath1.utils.Logging
 
 
-class XPathParser extends JavaTokenParsers with PackratParsers {
+class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
+
+  def println(s: String, args: Object*) {
+    logger.debug(s, args: _*)
+  }
+
+  override def log[T](p: => Parser[T])(name: String): Parser[T] = Parser {
+    in =>
+      println("trying {} at {}", name, in)
+      val r = p(in)
+      println("{} --> {}", name, r)
+      r
+  }
+
+  def parsePathExpression(input: String) = parseAll(pathExpr, input).get
 
   def locationPath: Parser[LocationPath] =
     log(relativeLocationPath)("relativeLocationPath") |||
@@ -17,7 +36,7 @@ class XPathParser extends JavaTokenParsers with PackratParsers {
       log(abbreviatedAbsoluteLocationPath)("abbreviatedAbsoluteLocationPath")
 
   lazy val relativeLocationPath: PackratParser[LocationPath] =
-    log(step)("step") ^^ (RelativeLocationPath(_)) |||
+    log(step)("step") ^^ (s => RelativeLocationPath(List(s))) |||
       log(relativeLocationPath ~ "/" ~ step)("relativeLocationPath ~ \"/\" ~ step") ^^ {
         case path ~ _ ~ step => path :+ step
       } |||
@@ -47,7 +66,7 @@ class XPathParser extends JavaTokenParsers with PackratParsers {
 
   def predicate: Parser[Predicate] = "[" ~> predicateExpr <~ "]" ^^ (e => Predicate(e))
 
-  def predicateExpr: Parser[Expr] = expr
+  def predicateExpr: Parser[Expression] = expr
 
   lazy val abbreviatedAbsoluteLocationPath: PackratParser[LocationPath] =
     log("//" ~> relativeLocationPath)("\"//\" ~> relativeLocationPath") ^^ (AbbreviatedAbsoluteLocationPath(_))
@@ -65,107 +84,112 @@ class XPathParser extends JavaTokenParsers with PackratParsers {
     def abbreviatedAxisSpecifier: Parser[String] = opt("@") ^^ (_.getOrElse(""))
   */
 
-  def expr: Parser[Expr] = orExpr
+  def expr: Parser[Expression] = orExpr
 
   def stripQuotes(s: String) = s.substring(1, s.length - 1)
 
-  def primaryExpr: Parser[Expr] =
+  def primaryExpr: Parser[Expression] =
   /*variableReference |*/
-    "(" ~> expr <~ ")" |
-      literal ^^ (s => LiteralExpr(stripQuotes(s))) |
-      number ^^ (n => NumberExpr(n))
+    log("(" ~> expr <~ ")")("\"(\" ~> expr <~ \")\"") |||
+      log(literal)("literal") ^^ (s => LiteralExpression(stripQuotes(s))) |||
+      log(number)("number") ^^ (n => NumberExpression(n)) |||
+      log(functionCall)("functionCall")
 
-  /*|
-     functionCall*/
+  def functionCall: Parser[FunctionCallExpression] =
+    log(functionName ~ "(" ~ repsep(argument, ",") ~ ")")("functionName ~ \"(\" ~ repsep(argument, \",\") ~ \")\"") ^^ {
+      case funName ~ "(" ~ args ~ ")" => FunctionCallExpression(funName, args)
+    }
 
+  def functionName: Parser[QName] =
+    qname
 
-  // functionCall
-  //argument
+  def argument: Parser[Expression] =
+    expr
 
-  lazy val unionExpr: PackratParser[Expr] =
+  lazy val unionExpr: PackratParser[Expression] =
     pathExpr |
       unionExpr ~ "|" ~ pathExpr ^^ {
-        case e1 ~ _ ~ e2 => UnionExpr(e1, e2)
+        case e1 ~ _ ~ e2 => UnionExpression(e1, e2)
       }
 
   //  lazy val pathExpr: PackratParser[Expr] =
-  def pathExpr: Parser[Expr] =
-    log(locationPath)("locationPath") ^^ (path => LocationPathExpr(path)) |
+  def pathExpr: Parser[Expression] =
+    log(locationPath)("locationPath") ^^ (path => LocationPathExpression(path)) |||
       log(filterExpr)("filterExpr") |
       log(filterExpr ~ "/" ~ relativeLocationPath)("filterExpr ~ \"/\" ~ relativeLocationPath") ^^ {
-        case prefix ~ _ ~ tail => PathExpr(prefix, tail)
+        case prefix ~ _ ~ tail => PathExpression(prefix, tail)
       } |
       log(filterExpr ~ "//" ~ relativeLocationPath)("filterExpr ~ \"//\" ~ relativeLocationPath") ^^ {
-        case prefix ~ _ ~ tail => AbbreviatedPathExpr(prefix, tail)
+        case prefix ~ _ ~ tail => AbbreviatedPathExpression(prefix, tail)
       }
 
-  lazy val filterExpr: PackratParser[Expr] =
-    primaryExpr |
+  lazy val filterExpr: PackratParser[Expression] =
+    primaryExpr |||
       filterExpr ~ predicate ^^ {
-        case e ~ pred => FilterExpr(e, pred)
+        case e ~ pred => FilterExpression(e, pred)
       }
 
 
-  lazy val orExpr: PackratParser[Expr] =
+  lazy val orExpr: PackratParser[Expression] =
     andExpr |
       orExpr ~ "or" ~ andExpr ^^ {
-        case e1 ~ _ ~ e2 => OrExpr(e1, e2)
+        case e1 ~ _ ~ e2 => OrExpression(e1, e2)
       }
 
-  lazy val andExpr: PackratParser[Expr] =
+  lazy val andExpr: PackratParser[Expression] =
     equalityExpr |
       andExpr ~ "and" ~ equalityExpr ^^ {
-        case e1 ~ _ ~ e2 => AndExpr(e1, e2)
+        case e1 ~ _ ~ e2 => AndExpression(e1, e2)
       }
 
-  lazy val equalityExpr: PackratParser[Expr] =
+  lazy val equalityExpr: PackratParser[Expression] =
     relationalExpr |||
       equalityExpr ~ "=" ~ relationalExpr ^^ {
-        case e1 ~ _ ~ e2 => EqExpr(e1, e2)
+        case e1 ~ _ ~ e2 => EqExpression(e1, e2)
       } |
       equalityExpr ~ "!=" ~ relationalExpr ^^ {
-        case e1 ~ _ ~ e2 => NeqExpr(e1, e2)
+        case e1 ~ _ ~ e2 => NeqExpression(e1, e2)
       }
 
-  lazy val relationalExpr: PackratParser[Expr] =
+  lazy val relationalExpr: PackratParser[Expression] =
     additiveExpr |
       relationalExpr ~ "<" ~ additiveExpr ^^ {
-        case e1 ~ _ ~ e2 => LtExpr(e1, e2)
+        case e1 ~ _ ~ e2 => LtExpression(e1, e2)
       } |
       relationalExpr ~ ">" ~ additiveExpr ^^ {
-        case e1 ~ _ ~ e2 => GtExpr(e1, e2)
+        case e1 ~ _ ~ e2 => GtExpression(e1, e2)
       } |
       relationalExpr ~ "<=" ~ additiveExpr ^^ {
-        case e1 ~ _ ~ e2 => LtEExpr(e1, e2)
+        case e1 ~ _ ~ e2 => LtEExpression(e1, e2)
       } |
       relationalExpr ~ ">=" ~ additiveExpr ^^ {
-        case e1 ~ _ ~ e2 => GtEExpr(e1, e2)
+        case e1 ~ _ ~ e2 => GtEExpression(e1, e2)
       }
 
-  lazy val additiveExpr: PackratParser[Expr] =
+  lazy val additiveExpr: PackratParser[Expression] =
     multiplicativeExpr |
       additiveExpr ~ "+" ~ multiplicativeExpr ^^ {
-        case e1 ~ _ ~ e2 => SumExpr(e1, e2)
+        case e1 ~ _ ~ e2 => SumExpression(e1, e2)
       } |
       additiveExpr ~ "-" ~ multiplicativeExpr ^^ {
-        case e1 ~ _ ~ e2 => SubtractExpr(e1, e2)
+        case e1 ~ _ ~ e2 => SubtractExpression(e1, e2)
       }
 
-  lazy val multiplicativeExpr: PackratParser[Expr] =
+  lazy val multiplicativeExpr: PackratParser[Expression] =
     unaryExpr |
       multiplicativeExpr ~ "*" ~ unaryExpr ^^ {
-        case e1 ~ _ ~ e2 => MultiplyExpr(e1, e2)
+        case e1 ~ _ ~ e2 => MultiplyExpression(e1, e2)
       } |
       multiplicativeExpr ~ "div" ~ unaryExpr ^^ {
-        case e1 ~ _ ~ e2 => DivExpr(e1, e2)
+        case e1 ~ _ ~ e2 => DivExpression(e1, e2)
       } |
       multiplicativeExpr ~ "mod" ~ unaryExpr ^^ {
-        case e1 ~ _ ~ e2 => ModExpr(e1, e2)
+        case e1 ~ _ ~ e2 => ModExpression(e1, e2)
       }
 
-  lazy val unaryExpr: PackratParser[Expr] =
+  lazy val unaryExpr: PackratParser[Expression] =
     unionExpr |
-      "-" ~> unaryExpr ^^ (e => MinusExpr(e))
+      "-" ~> unaryExpr ^^ (e => MinusExpression(e))
 
   // exprToken
 
@@ -180,9 +204,10 @@ class XPathParser extends JavaTokenParsers with PackratParsers {
   // functionName
   // variableReference
 
+  // TODO fix ns-handling logic in ncname:*
   def nameTest: Parser[QName] =
-    "*" ^^ (_ => QName("*")) |
-      ncname <~ ":*" ^^ (QName(_, "*")) |
+    "*" ^^^ QName("*") |
+      ncname <~ ":*" ^^ (QName("", _, "*")) |
       qname
 
   def nodeType: Parser[NodeType] =
@@ -209,8 +234,9 @@ class XPathParser extends JavaTokenParsers with PackratParsers {
   }
 
   // http://www.w3.org/TR/REC-xml-names/#NT-PrefixedName
+  // TODO add namespace resolution logic
   def prefixedName: Parser[QName] = (prefix ~ ":" ~ localPart) ^^ {
-    case prefix ~ ":" ~ localPart => QName(prefix, localPart)
+    case prefix ~ ":" ~ localPart => QName("", prefix, localPart)
   }
 
   // http://www.w3.org/TR/REC-xml-names/#NT-Prefix

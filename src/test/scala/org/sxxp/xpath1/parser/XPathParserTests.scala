@@ -1,6 +1,10 @@
 package org.sxxp.xpath1.parser
 
 import org.scalatest.FlatSpec
+import org.sxxp.xpath1.parser.expression._
+import org.sxxp.xpath1.parser.step.{CurNodeStep, AbbreviatedNodeStep, NodeStep}
+import org.sxxp.xpath1.parser.nodetest.{NameNodeTest, NodeTest}
+import org.sxxp.xpath1.parser.path.{AbsoluteLocationPath, AbbreviatedAbsoluteLocationPath, RelativeLocationPath}
 
 
 class XPathParserTests extends FlatSpec {
@@ -21,7 +25,7 @@ class XPathParserTests extends FlatSpec {
 
   def verifyNodeTestParseResult(input: String, expected: NodeTest) = verifyParseResult(parser.nodeTest, input, expected)
 
-  def verifyPathExprParseResult(input: String, expected: Expr) = verifyParseResult(parser.pathExpr, input, expected)
+  def verifyPathExprParseResult(input: String, expected: Expression) = verifyParseResult(parser.pathExpr, input, expected)
 
 
   "nameTest" should "parse non-qualified name" in {
@@ -29,7 +33,7 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse qualified name" in {
-    verifyNameTestParseResult("myns:someNode", QName("myns", "someNode"))
+    verifyNameTestParseResult("myns:someNode", QName("", "myns", "someNode"))
   }
 
   it should "parse any name (*)" in {
@@ -37,16 +41,16 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse any name for a given namespace (ns:*)" in {
-    verifyNameTestParseResult("myns:*", QName("myns", "*"))
+    verifyNameTestParseResult("myns:*", QName("", "myns", "*"))
   }
 
   "nodeTest" should "parse qualified name" in {
-    verifyNodeTestParseResult("myns:someNode", NameNodeTest(QName("myns", "someNode")))
+    verifyNodeTestParseResult("myns:someNode", NameNodeTest(QName("", "myns", "someNode")))
   }
 
   "pathExpr" should "parse a" in {
     verifyPathExprParseResult("a",
-      LocationPathExpr(
+      LocationPathExpression(
         RelativeLocationPath(
           List(
             NodeStep(NameNodeTest(QName("a")), List())))))
@@ -54,7 +58,7 @@ class XPathParserTests extends FlatSpec {
 
   it should "parse a/b" in {
     verifyPathExprParseResult("a/b",
-      LocationPathExpr(
+      LocationPathExpression(
         RelativeLocationPath(
           List(
             NodeStep(NameNodeTest(QName("a")), List()),
@@ -63,7 +67,7 @@ class XPathParserTests extends FlatSpec {
 
   it should "parse a//b" in {
     verifyPathExprParseResult("a//b",
-      LocationPathExpr(
+      LocationPathExpression(
         RelativeLocationPath(
           List(
             NodeStep(NameNodeTest(QName("a")), List()),
@@ -73,7 +77,7 @@ class XPathParserTests extends FlatSpec {
 
   it should "parse /a/b" in {
     verifyPathExprParseResult("/a/b",
-      LocationPathExpr(
+      LocationPathExpression(
         AbsoluteLocationPath(
           List(
             NodeStep(NameNodeTest(QName("a")), List()),
@@ -82,7 +86,7 @@ class XPathParserTests extends FlatSpec {
 
   it should "parse //a/b" in {
     verifyPathExprParseResult("//a/b",
-      LocationPathExpr(
+      LocationPathExpression(
         AbbreviatedAbsoluteLocationPath(
           List(
             NodeStep(NameNodeTest(QName("a")), List()),
@@ -91,32 +95,59 @@ class XPathParserTests extends FlatSpec {
 
   it should "parse a[1]" in {
     verifyPathExprParseResult("a[1]",
-      LocationPathExpr(
+      LocationPathExpression(
         RelativeLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List(Predicate(NumberExpr(1.0))))))))
+            NodeStep(NameNodeTest(QName("a")), List(Predicate(NumberExpression(1.0))))))))
   }
 
   it should "parse ." in {
     verifyPathExprParseResult(".",
-      LocationPathExpr(
+      LocationPathExpression(
         RelativeLocationPath(
           List(CurNodeStep))))
   }
 
   it should "parse a[1]/b[. = 'abcd']" in {
     verifyPathExprParseResult("a[1]/b[.='abcd']",
-      LocationPathExpr(
+      LocationPathExpression(
         RelativeLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List(Predicate(NumberExpr(1.0)))),
-            NodeStep(NameNodeTest(QName("b")), List(Predicate(EqExpr(LocationPathExpr(RelativeLocationPath(List(CurNodeStep))), LiteralExpr("abcd"))))))))
+            NodeStep(NameNodeTest(QName("a")), List(Predicate(NumberExpression(1.0)))),
+            NodeStep(NameNodeTest(QName("b")), List(Predicate(EqExpression(LocationPathExpression(RelativeLocationPath(List(CurNodeStep))), LiteralExpression("abcd"))))))))
     )
   }
 
   it should "parse a//." in {
     verifyPathExprParseResult("a//.",
-      LocationPathExpr(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()), AbbreviatedNodeStep(CurNodeStep)))))
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()), AbbreviatedNodeStep(CurNodeStep)))))
+  }
+
+  it should "parse (//aa)[1]" in {
+    verifyPathExprParseResult("(//aa)[1]",
+      FilterExpression(
+        LocationPathExpression(
+          AbbreviatedAbsoluteLocationPath(List(NodeStep(NameNodeTest(QName("aa")), List())))
+        ), Predicate(NumberExpression(1.0))))
+  }
+
+  it should "parse /*" in {
+    verifyPathExprParseResult("/*",
+      LocationPathExpression(AbsoluteLocationPath(List(NodeStep(NameNodeTest(QName("*")), List())))))
+  }
+
+  it should "parse /a[. = myFun(1,//somePath)]" in {
+    verifyPathExprParseResult("/a[. = myFun(1,//somePath)]",
+      LocationPathExpression(
+        AbsoluteLocationPath(
+          List(NodeStep(NameNodeTest(QName("a")), List(
+            Predicate(
+              EqExpression(
+                LocationPathExpression(RelativeLocationPath(List(CurNodeStep))),
+                FunctionCallExpression(QName("myFun"), List(
+                  NumberExpression(1.0),
+                  LocationPathExpression(
+                    AbbreviatedAbsoluteLocationPath(List(NodeStep(NameNodeTest(QName("somePath")), List()))))))))))))))
   }
 
 }
