@@ -14,3 +14,6 @@ libraryDependencies ++= Seq(
 
 jacoco.settings
 
+testOptions in Test <+= (target in Test) map {
+  t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "../shippable/testresults"))
+}
