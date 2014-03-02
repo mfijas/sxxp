@@ -116,7 +116,14 @@ case class PathExpression(expr: Expression, path: LocationPath) extends Expressi
   }
 }
 
-case class AbbreviatedPathExpression(expr: Expression, path: LocationPath) extends Expression
+case class AbbreviatedPathExpression(expr: Expression, path: LocationPath) extends Expression {
+  override def evaluate(node: Node, context: XPathContext) = {
+    val nodeSeq = expr.evaluate(node, context).asNodeSeq.nodeSeq
+    // TODO optimize it
+    val descendants = nodeSeq.flatMap(n => n.descendant_or_self)
+    XNodeSeq(descendants.flatMap(n => path.select(n, context)))
+  }
+}
 
 case class FunctionCallExpression(functionName: QName, arguments: List[Expression]) extends Expression {
 

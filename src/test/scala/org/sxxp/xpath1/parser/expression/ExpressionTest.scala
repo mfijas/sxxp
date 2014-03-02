@@ -102,24 +102,44 @@ class ExpressionTest extends FlatSpec {
     assert(MinusExpression(LiteralExpression("123")).evaluate(null, null) === XNumber(-123))
   }
 
+  val xml =
+    <root>
+      <a>
+        <b>
+          <c>1</c>
+          <c>2</c>
+        </b>
+        <b>
+          <c>3</c>
+        </b>
+      </a>
+    </root>
+
   "PathExpression" should "evaluate properly" in {
     // given
-    val doc =
-      <root>
-        <a>
-          <b/>
-          <b/>
-        </a>
-      </root>
-
     val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()))))
     val path = RelativeLocationPath(List(NodeStep(NameNodeTest(QName("b")), List())))
     val pathExpression = PathExpression(expression, path)
 
     // when
-    val result = pathExpression.evaluate(doc, XPathContext(doc))
+    val result = pathExpression.evaluate(xml, XPathContext(xml))
 
     // then
-    assert(result.nodeSeq === doc \ "a" \ "b")
+    assert(result.nodeSeq === xml \ "a" \ "b")
   }
+
+  "AbbreviatedPathExpression" should "evaluate properly" in {
+    // given
+    val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()))))
+    val path = RelativeLocationPath(List(NodeStep(NameNodeTest(QName("c")), List())))
+    val pathExpression = AbbreviatedPathExpression(expression, path)
+
+    // when
+    val result = pathExpression.evaluate(xml, XPathContext(xml))
+
+    // then
+    assert(result.nodeSeq === xml \ "a" \\ "c")
+  }
+
+
 }
