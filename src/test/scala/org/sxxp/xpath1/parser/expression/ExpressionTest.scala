@@ -125,7 +125,7 @@ class ExpressionTest extends FlatSpec {
     val result = pathExpression.evaluate(xml, XPathContext(xml))
 
     // then
-    assert(result.nodeSeq === xml \ "a" \ "b")
+    assert(result.value === xml \ "a" \ "b")
   }
 
   "AbbreviatedPathExpression" should "evaluate properly" in {
@@ -138,7 +138,7 @@ class ExpressionTest extends FlatSpec {
     val result = pathExpression.evaluate(xml, XPathContext(xml))
 
     // then
-    assert(result.nodeSeq === xml \ "a" \\ "c")
+    assert(result.value === xml \ "a" \\ "c")
   }
 
 

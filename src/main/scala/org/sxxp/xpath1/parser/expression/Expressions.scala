@@ -59,32 +59,32 @@ case class GtEExpression(left: Expression, right: Expression) extends Expression
 
 case class SumExpression(left: Expression, right: Expression) extends Expression {
   override def evaluate(node: Node, context: XPathContext) =
-    XNumber(left.evaluate(node, context).asNumber.number + right.evaluate(node, context).asNumber.number)
+    XNumber(left.evaluate(node, context).asNumber.value + right.evaluate(node, context).asNumber.value)
 }
 
 case class SubtractExpression(left: Expression, right: Expression) extends Expression {
   override def evaluate(node: Node, context: XPathContext) =
-    XNumber(left.evaluate(node, context).asNumber.number - right.evaluate(node, context).asNumber.number)
+    XNumber(left.evaluate(node, context).asNumber.value - right.evaluate(node, context).asNumber.value)
 }
 
 case class MultiplyExpression(left: Expression, right: Expression) extends Expression {
   override def evaluate(node: Node, context: XPathContext) =
-    XNumber(left.evaluate(node, context).asNumber.number * right.evaluate(node, context).asNumber.number)
+    XNumber(left.evaluate(node, context).asNumber.value * right.evaluate(node, context).asNumber.value)
 }
 
 case class DivExpression(left: Expression, right: Expression) extends Expression {
   override def evaluate(node: Node, context: XPathContext) =
-    XNumber(left.evaluate(node, context).asNumber.number / right.evaluate(node, context).asNumber.number)
+    XNumber(left.evaluate(node, context).asNumber.value / right.evaluate(node, context).asNumber.value)
 }
 
 case class ModExpression(left: Expression, right: Expression) extends Expression {
   override def evaluate(node: Node, context: XPathContext) =
-    XNumber(left.evaluate(node, context).asNumber.number % right.evaluate(node, context).asNumber.number)
+    XNumber(left.evaluate(node, context).asNumber.value % right.evaluate(node, context).asNumber.value)
 }
 
 case class MinusExpression(exp: Expression) extends Expression {
   override def evaluate(node: Node, context: XPathContext) =
-    XNumber(-exp.evaluate(node, context).asNumber.number)
+    XNumber(-exp.evaluate(node, context).asNumber.value)
 }
 
 case class UnionExpression(left: Expression, right: Expression) extends Expression
@@ -99,7 +99,7 @@ case class NumberExpression(value: Double) extends Expression {
 
 case class FilterExpression(expr: Expression, predicate: Predicate) extends Expression {
   override def evaluate(node: Node, context: XPathContext): XObject = {
-    XNodeSeq(expr.evaluate(node, context).asNodeSeq.nodeSeq.zipWithIndex.filter {
+    XNodeSeq(expr.evaluate(node, context).asNodeSeq.value.zipWithIndex.filter {
       case (n, index) =>
         predicate.evaluate(n, index + 1, context)
     }.map {
@@ -111,14 +111,14 @@ case class FilterExpression(expr: Expression, predicate: Predicate) extends Expr
 
 case class PathExpression(expr: Expression, path: LocationPath) extends Expression {
   override def evaluate(node: Node, context: XPathContext) = {
-    val nodeSeq = expr.evaluate(node, context).asNodeSeq.nodeSeq
+    val nodeSeq = expr.evaluate(node, context).asNodeSeq.value
     XNodeSeq(nodeSeq.flatMap(n => path.select(n, context)))
   }
 }
 
 case class AbbreviatedPathExpression(expr: Expression, path: LocationPath) extends Expression {
   override def evaluate(node: Node, context: XPathContext) = {
-    val nodeSeq = expr.evaluate(node, context).asNodeSeq.nodeSeq
+    val nodeSeq = expr.evaluate(node, context).asNodeSeq.value
     // TODO optimize it
     val descendants = nodeSeq.flatMap(n => n.descendant_or_self)
     XNodeSeq(descendants.flatMap(n => path.select(n, context)))

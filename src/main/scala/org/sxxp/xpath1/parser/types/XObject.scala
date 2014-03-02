@@ -30,32 +30,32 @@ trait XObject {
 }
 
 
-case class XNumber(number: Double) extends XObject {
-  override def asBoolean = XBoolean(!number.isNaN && number != 0)
+case class XNumber(value: Double) extends XObject {
+  override def asBoolean = XBoolean(!value.isNaN && value != 0)
 
   // TODO make it conform to spec
   // possibly use ugly code from com.sun.org.apache.xpath.internal.objects.XNumber.str()
   override def asString =
-    if (number.toLong.toDouble == number)
-      XString(number.toLong.toString)
+    if (value.toLong.toDouble == value)
+      XString(value.toLong.toString)
     else
-      XString(number.toString)
+      XString(value.toString)
 
   override def asNumber = this
 }
 
-case class XNodeSeq(nodeSeq: NodeSeq) extends XObject {
+case class XNodeSeq(value: NodeSeq) extends XObject {
   override def asNodeSeq = this
 
-  override def asBoolean = XBoolean(!nodeSeq.isEmpty)
+  override def asBoolean = XBoolean(!value.isEmpty)
 
-  override def asString = XString(if (nodeSeq.isEmpty) "" else nodeSeq(0).text)
+  override def asString = XString(if (value.isEmpty) "" else value(0).text)
 
   override def asNumber = asString.asNumber
 
   def isEqualTo(other: XNodeSeq) = {
     def simpleComparison =
-      nodeSeq.text == other.nodeSeq.text
+      value.text == other.value.text
 
     def complexComparison = {
       /*
@@ -65,19 +65,19 @@ case class XNodeSeq(nodeSeq: NodeSeq) extends XObject {
        */
       // TODO check if this optimization is right
       val (shorter, longer) =
-        if (nodeSeq.length < other.nodeSeq.length) (nodeSeq, other.nodeSeq) else (other.nodeSeq, nodeSeq)
+        if (value.length < other.value.length) (value, other.value) else (other.value, value)
       val shorterTexts = shorter.map(_.text).toSet
       longer.exists(node => shorterTexts.contains(node.text))
     }
 
-    if (nodeSeq.length == 1 && other.nodeSeq.length == 1) simpleComparison else complexComparison
+    if (value.length == 1 && other.value.length == 1) simpleComparison else complexComparison
   }
 
   def isEqualTo(other: XNumber) =
-    nodeSeq.exists(node => XString(node.text).asNumber == other)
+    value.exists(node => XString(node.text).asNumber == other)
 
   def isEqualTo(other: XString) =
-    nodeSeq.exists(node => node.text == other.string)
+    value.exists(node => node.text == other.value)
 
   def isEqualTo(other: XBoolean) =
     asBoolean == other
@@ -91,16 +91,16 @@ case class XBoolean(value: Boolean) extends XObject {
   override def asString = XString(value.toString)
 }
 
-case class XString(string: String) extends XObject {
+case class XString(value: String) extends XObject {
   override def asString = this
 
-  override def asBoolean = XBoolean(!string.isEmpty)
+  override def asBoolean = XBoolean(!value.isEmpty)
 
   override def asNumber = {
     // TODO verify with specification
     XNumber(
       try {
-        string.toDouble
+        value.toDouble
       } catch {
         case _: NumberFormatException => Double.NaN
       }
