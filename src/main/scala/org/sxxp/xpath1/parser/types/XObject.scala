@@ -70,11 +70,7 @@ case class XNodeSeq(nodeSeq: NodeSeq) extends XObject {
       longer.exists(node => shorterTexts.contains(node.text))
     }
 
-    if (nodeSeq.length == 1 && other.nodeSeq.length == 1) {
-      simpleComparison
-    } else {
-      complexComparison
-    }
+    if (nodeSeq.length == 1 && other.nodeSeq.length == 1) simpleComparison else complexComparison
   }
 
   def isEqualTo(other: XNumber) =
@@ -87,12 +83,12 @@ case class XNodeSeq(nodeSeq: NodeSeq) extends XObject {
     asBoolean == other
 }
 
-case class XBoolean(isTrue: Boolean) extends XObject {
+case class XBoolean(value: Boolean) extends XObject {
   override def asBoolean = this
 
-  override def asNumber = XNumber(if (isTrue) 1 else 0)
+  override def asNumber = XNumber(if (value) 1 else 0)
 
-  override def asString = XString(isTrue.toString)
+  override def asString = XString(value.toString)
 }
 
 case class XString(string: String) extends XObject {

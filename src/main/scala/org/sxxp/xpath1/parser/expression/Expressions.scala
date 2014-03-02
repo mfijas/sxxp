@@ -34,12 +34,12 @@ trait Expression {
 
 case class OrExpression(left: Expression, right: Expression) extends Expression {
   override def evaluate(node: Node, context: XPathContext) =
-    XBoolean(left.evaluate(node, context).asBoolean.isTrue || right.evaluate(node, context).asBoolean.isTrue)
+    XBoolean(left.evaluate(node, context).asBoolean.value || right.evaluate(node, context).asBoolean.value)
 }
 
 case class AndExpression(left: Expression, right: Expression) extends Expression {
   override def evaluate(node: Node, context: XPathContext) =
-    XBoolean(left.evaluate(node, context).asBoolean.isTrue && right.evaluate(node, context).asBoolean.isTrue)
+    XBoolean(left.evaluate(node, context).asBoolean.value && right.evaluate(node, context).asBoolean.value)
 }
 
 case class EqExpression(left: Expression, right: Expression) extends Expression {

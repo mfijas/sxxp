@@ -22,8 +22,8 @@ import org.sxxp.xpath1.parser.types.{XNumber, XBoolean}
 
 class ExpressionTest extends FlatSpec {
 
-  val True = XBoolean(true)
-  val False = XBoolean(false)
+  val True = XBoolean(value = true)
+  val False = XBoolean(value = false)
 
   val TrueExp = FunctionCallExpression(QName("true"), List.empty)
   val FalseExp = FunctionCallExpression(QName("false"), List.empty)
