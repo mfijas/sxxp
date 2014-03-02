@@ -52,7 +52,7 @@ class JavaComparisonTests extends FunSuite {
     expr.evaluate(node, XPathConstants.NODESET)
   }
 
-  def serializeScalaNode(node: Node) = node.toString.replace("\r\n", "\n")
+  def serializeScalaNode(node: Node) = node.toString()
 
   def serializeJavaNode(node: dom.Node) = {
     val transformer = TransformerFactory.newInstance.newTransformer
