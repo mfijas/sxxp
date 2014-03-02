@@ -16,7 +16,7 @@ jacoco.settings
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-u", "%s" format (target.value / "../shippable/testresults"))
 
-jacoco.outputDirectory in jacoco.Config := crossTarget.value / "../../shippable/codecoverage"
+jacoco.outputDirectory in jacoco.Config := target.value / "../shippable/codecoverage"
 
 jacoco.reportFormats in jacoco.Config := Seq(
   XMLReport(encoding = "utf-8"),
