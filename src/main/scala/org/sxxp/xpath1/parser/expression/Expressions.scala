@@ -100,11 +100,11 @@ case class NumberExpression(value: Double) extends Expression {
 case class FilterExpression(expr: Expression, predicate: Predicate) extends Expression {
   override def evaluate(node: Node, context: XPathContext): XObject = {
     XNodeSeq(expr.evaluate(node, context).asNodeSeq.nodeSeq.zipWithIndex.filter {
-      case (node, index) =>
-        predicate.evaluate(node, index + 1, context)
+      case (n, index) =>
+        predicate.evaluate(n, index + 1, context)
     }.map {
-      case (node, _) =>
-        node
+      case (n, _) =>
+        n
     })
   }
 }
