@@ -81,11 +81,13 @@ class JavaComparisonTests extends FunSuite {
     compareNodeSeqToNodeList(scalaResult, javaResult, s"for path '$path'")
   }
 
-  test("simple path") {
+  test("simple paths") {
     compareResult("test.xml", "a")
     compareResult("test.xml", "a/aa")
     compareResult("test.xml", "/root/a")
     compareResult("test.xml", "/root//aa")
+    compareResult("test.xml", "(//a)/aa")
+    compareResult("test.xml", "(//a)//aa")
     compareResult("test.xml", "/root//aa[2]")
     compareResult("test.xml", "//aa[1]")
     compareResult("test.xml", "/*")
@@ -98,8 +100,6 @@ class JavaComparisonTests extends FunSuite {
     compareResult("test.xml", "numbers/n[number(.) = 234]")
     compareResult("test.xml", "numbers/n[boolean(.)]")
     compareResult("test.xml", "numbers/n[string(.) = '234']")
-    // would throw IllegalStateException
-    // compareResult("test.xml", "numbers/n[illegalFun('abc',1)]")
   }
 
   test("root selector") {
