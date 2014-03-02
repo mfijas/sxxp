@@ -166,4 +166,18 @@ class XPathParserTests extends FlatSpec {
                     AbbreviatedAbsoluteLocationPath(List(NodeStep(NameNodeTest(QName("somePath")), List()))))))))))))))
   }
 
+  it should "parse (a)/b" in {
+    verifyPathExprParseResult("(a)/b",
+      PathExpression(
+        LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List())))),
+        RelativeLocationPath(List(NodeStep(NameNodeTest(QName("b")), List())))))
+  }
+
+  it should "parse (a)//b" in {
+    verifyPathExprParseResult("(a)//b",
+      AbbreviatedPathExpression(
+        LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List())))),
+        RelativeLocationPath(List(NodeStep(NameNodeTest(QName("b")), List())))))
+  }
+
 }

@@ -128,13 +128,13 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
         case e1 ~ _ ~ e2 => UnionExpression(e1, e2)
       }
 
-  //  lazy val pathExpr: PackratParser[Expr] =
+  //  lazy val pathExpr: PackratParser[Expression] =
   def pathExpr: Parser[Expression] =
     log(locationPath)("locationPath") ^^ (path => LocationPathExpression(path)) |||
-      log(filterExpr)("filterExpr") |
+      log(filterExpr)("filterExpr") |||
       log(filterExpr ~ "/" ~ relativeLocationPath)("filterExpr ~ \"/\" ~ relativeLocationPath") ^^ {
         case prefix ~ _ ~ tail => PathExpression(prefix, tail)
-      } |
+      } |||
       log(filterExpr ~ "//" ~ relativeLocationPath)("filterExpr ~ \"//\" ~ relativeLocationPath") ^^ {
         case prefix ~ _ ~ tail => AbbreviatedPathExpression(prefix, tail)
       }
