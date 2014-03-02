@@ -19,6 +19,10 @@ package org.sxxp.xpath1.parser.expression
 import org.scalatest.FlatSpec
 import org.sxxp.xpath1.parser.QName
 import org.sxxp.xpath1.parser.types.{XNumber, XBoolean}
+import org.sxxp.xpath1.parser.path.RelativeLocationPath
+import org.sxxp.xpath1.parser.step.NodeStep
+import org.sxxp.xpath1.parser.nodetest.NameNodeTest
+import org.sxxp.xpath1.exp.XPathContext
 
 class ExpressionTest extends FlatSpec {
 
@@ -98,5 +102,24 @@ class ExpressionTest extends FlatSpec {
     assert(MinusExpression(LiteralExpression("123")).evaluate(null, null) === XNumber(-123))
   }
 
+  "PathExpression" should "evaluate properly" in {
+    // given
+    val doc =
+      <root>
+        <a>
+          <b/>
+          <b/>
+        </a>
+      </root>
 
+    val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()))))
+    val path = RelativeLocationPath(List(NodeStep(NameNodeTest(QName("b")), List())))
+    val pathExpression = PathExpression(expression, path)
+
+    // when
+    val result = pathExpression.evaluate(doc, XPathContext(doc))
+
+    // then
+    assert(result.nodeSeq === doc \ "a" \ "b")
+  }
 }

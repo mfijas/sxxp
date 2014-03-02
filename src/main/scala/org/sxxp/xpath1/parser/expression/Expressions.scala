@@ -109,7 +109,12 @@ case class FilterExpression(expr: Expression, predicate: Predicate) extends Expr
   }
 }
 
-case class PathExpression(expr: Expression, path: LocationPath) extends Expression
+case class PathExpression(expr: Expression, path: LocationPath) extends Expression {
+  override def evaluate(node: Node, context: XPathContext) = {
+    val nodeSeq = expr.evaluate(node, context).asNodeSeq.nodeSeq
+    XNodeSeq(nodeSeq.flatMap(n => path.select(n, context)))
+  }
+}
 
 case class AbbreviatedPathExpression(expr: Expression, path: LocationPath) extends Expression
 
