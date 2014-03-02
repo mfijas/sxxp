@@ -3,4 +3,4 @@ scala:
    - 2.10.3
 script:
    - sbt ++$SHIPPABLE_SCALA_VERSION test
-   - sbt ++$SHIPPABLE_SCALA_VERSION jacoco:cover
+
