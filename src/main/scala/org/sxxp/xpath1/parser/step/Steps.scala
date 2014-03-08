@@ -21,6 +21,7 @@ import org.sxxp.xpath1.parser.Predicate
 import org.sxxp.xpath1.parser.nodetest.NodeTest
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
+import org.sxxp.xpath1.parser.axis.{NodeWithAncestors, Axis}
 
 trait Step {
   def select(node: Node, context: XPathContext): NodeSeq = ???
@@ -38,17 +39,19 @@ case object CurNodeStep extends Step {
  */
 case object ParentNodeStep extends Step
 
-case class NodeStep(nodeTest: NodeTest, predicates: List[Predicate]) extends Step with Logging {
+case class NodeStep(axis: Axis, nodeTest: NodeTest, predicates: List[Predicate]) extends Step with Logging {
   override def select(node: Node, context: XPathContext): NodeSeq = {
-    node.child.filter(nodeTest(_)).zipWithIndex.filter {
+    // TODO migrate fully to NodeWithAncestors
+    val seq = axis(NodeWithAncestors(node, List.empty)).filter(n => nodeTest(n.node)).zipWithIndex.filter {
       case (n, index) =>
         predicates.forall {
           predicate =>
-            val result = predicate.evaluate(n, index + 1, context)
+            val result = predicate.evaluate(n.node, index + 1, context)
             logger.debug("predicate: {}, result: {}", predicate, result)
             result
         }
-    }.map(_._1)
+    }.map(_._1.node)
+    NodeSeq.fromSeq(seq)
   }
 }
 
@@ -56,9 +59,10 @@ case class NodeStep(nodeTest: NodeTest, predicates: List[Predicate]) extends Ste
 /**
  * //
  */
+// TODO consider changing to DescendantAxis
 case class AbbreviatedNodeStep(step: Step) extends Step {
   override def select(node: Node, context: XPathContext): NodeSeq = {
-    node.descendant_or_self.flatMap(node => step.select(node, context))
+    NodeSeq.fromSeq(node.descendant_or_self.flatMap(node => step.select(node, context)))
   }
 }
 

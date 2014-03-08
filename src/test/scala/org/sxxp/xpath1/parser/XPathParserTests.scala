@@ -21,6 +21,7 @@ import org.sxxp.xpath1.parser.expression._
 import org.sxxp.xpath1.parser.step.{CurNodeStep, AbbreviatedNodeStep, NodeStep}
 import org.sxxp.xpath1.parser.nodetest.{NameNodeTest, NodeTest}
 import org.sxxp.xpath1.parser.path.{AbsoluteLocationPath, AbbreviatedAbsoluteLocationPath, RelativeLocationPath}
+import org.sxxp.xpath1.parser.axis.ChildAxis
 
 
 class XPathParserTests extends FlatSpec {
@@ -69,7 +70,7 @@ class XPathParserTests extends FlatSpec {
       LocationPathExpression(
         RelativeLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List())))))
+            NodeStep(ChildAxis, NameNodeTest(QName("a")), List())))))
   }
 
   it should "parse a/b" in {
@@ -77,8 +78,8 @@ class XPathParserTests extends FlatSpec {
       LocationPathExpression(
         RelativeLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List()),
-            NodeStep(NameNodeTest(QName("b")), List())))))
+            NodeStep(ChildAxis, NameNodeTest(QName("a")), List()),
+            NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))))
   }
 
   it should "parse a//b" in {
@@ -86,9 +87,9 @@ class XPathParserTests extends FlatSpec {
       LocationPathExpression(
         RelativeLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List()),
+            NodeStep(ChildAxis, NameNodeTest(QName("a")), List()),
             AbbreviatedNodeStep(
-              NodeStep(NameNodeTest(QName("b")), List()))))))
+              NodeStep(ChildAxis, NameNodeTest(QName("b")), List()))))))
   }
 
   it should "parse /a/b" in {
@@ -96,8 +97,8 @@ class XPathParserTests extends FlatSpec {
       LocationPathExpression(
         AbsoluteLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List()),
-            NodeStep(NameNodeTest(QName("b")), List())))))
+            NodeStep(ChildAxis, NameNodeTest(QName("a")), List()),
+            NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))))
   }
 
   it should "parse //a/b" in {
@@ -105,8 +106,8 @@ class XPathParserTests extends FlatSpec {
       LocationPathExpression(
         AbbreviatedAbsoluteLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List()),
-            NodeStep(NameNodeTest(QName("b")), List())))))
+            NodeStep(ChildAxis, NameNodeTest(QName("a")), List()),
+            NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))))
   }
 
   it should "parse a[1]" in {
@@ -114,7 +115,7 @@ class XPathParserTests extends FlatSpec {
       LocationPathExpression(
         RelativeLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List(Predicate(NumberExpression(1.0))))))))
+            NodeStep(ChildAxis, NameNodeTest(QName("a")), List(Predicate(NumberExpression(1.0))))))))
   }
 
   it should "parse ." in {
@@ -129,55 +130,55 @@ class XPathParserTests extends FlatSpec {
       LocationPathExpression(
         RelativeLocationPath(
           List(
-            NodeStep(NameNodeTest(QName("a")), List(Predicate(NumberExpression(1.0)))),
-            NodeStep(NameNodeTest(QName("b")), List(Predicate(EqExpression(LocationPathExpression(RelativeLocationPath(List(CurNodeStep))), LiteralExpression("abcd"))))))))
+            NodeStep(ChildAxis, NameNodeTest(QName("a")), List(Predicate(NumberExpression(1.0)))),
+            NodeStep(ChildAxis, NameNodeTest(QName("b")), List(Predicate(EqExpression(LocationPathExpression(RelativeLocationPath(List(CurNodeStep))), LiteralExpression("abcd"))))))))
     )
   }
 
   it should "parse a//." in {
     verifyPathExprParseResult("a//.",
-      LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()), AbbreviatedNodeStep(CurNodeStep)))))
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List()), AbbreviatedNodeStep(CurNodeStep)))))
   }
 
   it should "parse (//aa)[1]" in {
     verifyPathExprParseResult("(//aa)[1]",
       FilterExpression(
         LocationPathExpression(
-          AbbreviatedAbsoluteLocationPath(List(NodeStep(NameNodeTest(QName("aa")), List())))
+          AbbreviatedAbsoluteLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("aa")), List())))
         ), Predicate(NumberExpression(1.0))))
   }
 
   it should "parse /*" in {
     verifyPathExprParseResult("/*",
-      LocationPathExpression(AbsoluteLocationPath(List(NodeStep(NameNodeTest(QName("*")), List())))))
+      LocationPathExpression(AbsoluteLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("*")), List())))))
   }
 
   it should "parse /a[. = myFun(1,//somePath)]" in {
     verifyPathExprParseResult("/a[. = myFun(1,//somePath)]",
       LocationPathExpression(
         AbsoluteLocationPath(
-          List(NodeStep(NameNodeTest(QName("a")), List(
+          List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List(
             Predicate(
               EqExpression(
                 LocationPathExpression(RelativeLocationPath(List(CurNodeStep))),
                 FunctionCallExpression(QName("myFun"), List(
                   NumberExpression(1.0),
                   LocationPathExpression(
-                    AbbreviatedAbsoluteLocationPath(List(NodeStep(NameNodeTest(QName("somePath")), List()))))))))))))))
+                    AbbreviatedAbsoluteLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("somePath")), List()))))))))))))))
   }
 
   it should "parse (a)/b" in {
     verifyPathExprParseResult("(a)/b",
       PathExpression(
-        LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List())))),
-        RelativeLocationPath(List(NodeStep(NameNodeTest(QName("b")), List())))))
+        LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List())))),
+        RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))))
   }
 
   it should "parse (a)//b" in {
     verifyPathExprParseResult("(a)//b",
       AbbreviatedPathExpression(
-        LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List())))),
-        RelativeLocationPath(List(NodeStep(NameNodeTest(QName("b")), List())))))
+        LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List())))),
+        RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))))
   }
 
 }

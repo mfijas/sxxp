@@ -22,6 +22,35 @@ import org.sxxp.xpath1.parser.step._
 import org.sxxp.xpath1.parser.nodetest._
 import org.sxxp.xpath1.parser.path._
 import org.sxxp.xpath1.utils.Logging
+import org.sxxp.xpath1.parser.axis._
+import org.sxxp.xpath1.parser.expression.LtEExpression
+import org.sxxp.xpath1.parser.expression.UnionExpression
+import org.sxxp.xpath1.parser.expression.EqExpression
+import org.sxxp.xpath1.parser.step.NodeStep
+import org.sxxp.xpath1.parser.expression.LocationPathExpression
+import org.sxxp.xpath1.parser.expression.LtExpression
+import org.sxxp.xpath1.parser.expression.NumberExpression
+import scala.Some
+import org.sxxp.xpath1.parser.expression.MinusExpression
+import org.sxxp.xpath1.parser.expression.FunctionCallExpression
+import org.sxxp.xpath1.parser.expression.OrExpression
+import org.sxxp.xpath1.parser.expression.FilterExpression
+import org.sxxp.xpath1.parser.expression.GtEExpression
+import org.sxxp.xpath1.parser.expression.DivExpression
+import org.sxxp.xpath1.parser.expression.PathExpression
+import org.sxxp.xpath1.parser.expression.AbbreviatedPathExpression
+import org.sxxp.xpath1.parser.expression.SumExpression
+import org.sxxp.xpath1.parser.path.RelativeLocationPath
+import org.sxxp.xpath1.parser.expression.NeqExpression
+import org.sxxp.xpath1.parser.expression.ModExpression
+import org.sxxp.xpath1.parser.expression.MultiplyExpression
+import org.sxxp.xpath1.parser.expression.LiteralExpression
+import org.sxxp.xpath1.parser.nodetest.NameNodeTest
+import org.sxxp.xpath1.parser.nodetest.NodeTypeTest
+import org.sxxp.xpath1.parser.expression.SubtractExpression
+import org.sxxp.xpath1.parser.step.AbbreviatedNodeStep
+import org.sxxp.xpath1.parser.expression.AndExpression
+import org.sxxp.xpath1.parser.expression.GtExpression
 
 
 class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
@@ -59,21 +88,33 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
       log(abbreviatedRelativeLocationPath)("abbreviatedRelativeLocationPath")
 
   def step: Parser[Step] =
-  /*axisSpecifier ~ */ nodeTest ~ rep(predicate) ^^ {
-    case /*axisSpecifier ~ */ nodeTest ~ predicates => NodeStep(nodeTest, predicates)
-  } |||
-    abbreviatedStep
+    axisSpecifier ~ nodeTest ~ rep(predicate) ^^ {
+      case axisSpecifier ~ nodeTest ~ predicates => NodeStep(axisSpecifier.axis, nodeTest, predicates)
+    } |||
+      abbreviatedStep
 
-  /*
-      def axisSpecifier: Parser[AxisSpecifier] = (axisName ~ "::" | abbreviatedAxisSpecifier) ^^ {
-        case (axisName: String) ~ "::" => AxisSpecifier(axisName)
-        case abbreviatedAxisSpecifier: String => AxisSpecifier(abbreviatedAxisSpecifier)
+  def axisSpecifier: Parser[AxisSpecifier] =
+    axisName <~ "::" ^^ {
+      axis => AxisSpecifier(axis)
+    } |
+      abbreviatedAxisSpecifier ^^ {
+        axis => AxisSpecifier(axis)
       }
 
-      def axisName: Parser[String] = "ancestor" | "ancestor-or-self" | "attribute" | "child" | "descendant" |
-        "descendant-or-self" | "following" | "following-sibling" | "namespace" | "parent" | "preceding" |
-        "preceding-sibling" | "self"
-  */
+  def axisName: Parser[Axis] =
+    "ancestor" ^^^ AncestorAxis |
+      "ancestor-or-self" ^^^ AncestorOrSelfAxis |
+      "attribute" ^^^ AttributeAxis |
+      "child" ^^^ ChildAxis |
+      "descendant" ^^^ DescendantAxis |
+      "descendant-or-self" ^^^ DescendantOrSelfAxis |
+      "following" ^^^ FollowingAxis |
+      "following-sibling" ^^^ FollowingSiblingAxis |
+      "namespace" ^^^ NamespaceAxis |
+      "parent" ^^^ ParentAxis |
+      "preceding" ^^^ PrecedingAxis |
+      "preceding-sibling" ^^^ PrecedingSiblingAxis |
+      "self" ^^^ SelfAxis
 
   /* | nodeType <~ "()" | "processing-instruction("~literal~")" */
   def nodeTest: Parser[NodeTest] =
@@ -96,9 +137,9 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
     "." ^^^ CurNodeStep |
       ".." ^^^ ParentNodeStep
 
-  /*
-    def abbreviatedAxisSpecifier: Parser[String] = opt("@") ^^ (_.getOrElse(""))
-  */
+  def abbreviatedAxisSpecifier: Parser[Axis] = opt("@") ^^ {
+    at => if (at.isDefined) AttributeAxis else ChildAxis
+  }
 
   def expr: Parser[Expression] = orExpr
 

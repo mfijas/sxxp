@@ -23,6 +23,7 @@ import org.sxxp.xpath1.parser.path.RelativeLocationPath
 import org.sxxp.xpath1.parser.step.NodeStep
 import org.sxxp.xpath1.parser.nodetest.NameNodeTest
 import org.sxxp.xpath1.exp.XPathContext
+import org.sxxp.xpath1.parser.axis.ChildAxis
 
 class ExpressionTest extends FlatSpec {
 
@@ -117,8 +118,8 @@ class ExpressionTest extends FlatSpec {
 
   "PathExpression" should "evaluate properly" in {
     // given
-    val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()))))
-    val path = RelativeLocationPath(List(NodeStep(NameNodeTest(QName("b")), List())))
+    val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List()))))
+    val path = RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))
     val pathExpression = PathExpression(expression, path)
 
     // when
@@ -130,8 +131,8 @@ class ExpressionTest extends FlatSpec {
 
   "AbbreviatedPathExpression" should "evaluate properly" in {
     // given
-    val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(NameNodeTest(QName("a")), List()))))
-    val path = RelativeLocationPath(List(NodeStep(NameNodeTest(QName("c")), List())))
+    val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List()))))
+    val path = RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("c")), List())))
     val pathExpression = AbbreviatedPathExpression(expression, path)
 
     // when
@@ -140,6 +141,5 @@ class ExpressionTest extends FlatSpec {
     // then
     assert(result.value === xml \ "a" \\ "c")
   }
-
 
 }
