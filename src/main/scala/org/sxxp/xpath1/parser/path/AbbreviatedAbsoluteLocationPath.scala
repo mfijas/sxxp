@@ -17,9 +17,10 @@
 package org.sxxp.xpath1.parser.path
 
 import org.sxxp.xpath1.parser.step.Step
-import scala.xml.{Node, NodeSeq}
+import scala.xml.{NodeSeq, Node}
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
+import org.sxxp.xpath1.parser.axis.{DescendantOrSelfAxis, NodeWithAncestors}
 
 /**
  * Location path starting with "//"
@@ -27,18 +28,20 @@ import org.sxxp.xpath1.utils.Logging
 case class AbbreviatedAbsoluteLocationPath(steps: List[Step]) extends LocationPath with Logging {
   override def :+(step: Step): LocationPath = AbbreviatedAbsoluteLocationPath(steps :+ step)
 
-  override def select(currentNode: Node, context: XPathContext): NodeSeq = {
-    var curNodeSeq: NodeSeq = context.rootNode.descendant_or_self
+  override def select(currentNode: Node, context: XPathContext) = {
+    // TODO change fully to NodeWithAncestors
+    var curNodeSeq: Seq[NodeWithAncestors] = DescendantOrSelfAxis(NodeWithAncestors(context.rootNode, List.empty))
     // TODO verify this if clause
     for (step <- steps if !curNodeSeq.isEmpty) {
       logger.debug("select: step = {}", step)
       curNodeSeq = curNodeSeq.flatMap {
         node =>
           logger.debug("select: node = {}", node)
-          step.select(node, context)
+          step.select(node.node, context)
       }
     }
-    curNodeSeq
+    // TODO change return value to NodeWithAncestors
+    NodeSeq.fromSeq(curNodeSeq.map(_.node))
   }
 }
 

@@ -16,22 +16,24 @@
 
 package org.sxxp.xpath1.parser.step
 
-import scala.xml.{NodeSeq, Node}
+import scala.xml.Node
 import org.sxxp.xpath1.parser.Predicate
 import org.sxxp.xpath1.parser.nodetest.NodeTest
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
-import org.sxxp.xpath1.parser.axis.{NodeWithAncestors, Axis}
+import org.sxxp.xpath1.parser.axis.{DescendantOrSelfAxis, NodeWithAncestors, Axis}
 
 trait Step {
-  def select(node: Node, context: XPathContext): NodeSeq = ???
+  def select(node: Node, context: XPathContext): Seq[NodeWithAncestors] = ???
 }
 
 /**
  * "."
  */
 case object CurNodeStep extends Step {
-  override def select(node: Node, context: XPathContext): NodeSeq = node
+  // TODO support NodeWithAncestors fully
+  override def select(node: Node, context: XPathContext) =
+    Seq(NodeWithAncestors(node, List.empty))
 }
 
 /**
@@ -40,9 +42,9 @@ case object CurNodeStep extends Step {
 case object ParentNodeStep extends Step
 
 case class NodeStep(axis: Axis, nodeTest: NodeTest, predicates: List[Predicate]) extends Step with Logging {
-  override def select(node: Node, context: XPathContext): NodeSeq = {
+  override def select(node: Node, context: XPathContext) = {
     // TODO migrate fully to NodeWithAncestors
-    val seq = axis(NodeWithAncestors(node, List.empty)).filter(n => nodeTest(n.node)).zipWithIndex.filter {
+    axis(NodeWithAncestors(node, List.empty)).filter(n => nodeTest(n.node)).zipWithIndex.filter {
       case (n, index) =>
         predicates.forall {
           predicate =>
@@ -50,8 +52,7 @@ case class NodeStep(axis: Axis, nodeTest: NodeTest, predicates: List[Predicate])
             logger.debug("predicate: {}, result: {}", predicate, result)
             result
         }
-    }.map(_._1.node)
-    NodeSeq.fromSeq(seq)
+    }.map(_._1)
   }
 }
 
@@ -61,8 +62,8 @@ case class NodeStep(axis: Axis, nodeTest: NodeTest, predicates: List[Predicate])
  */
 // TODO consider changing to DescendantAxis
 case class AbbreviatedNodeStep(step: Step) extends Step {
-  override def select(node: Node, context: XPathContext): NodeSeq = {
-    NodeSeq.fromSeq(node.descendant_or_self.flatMap(node => step.select(node, context)))
-  }
+  // TODO migrate fully to NodeWithAncestors
+  override def select(node: Node, context: XPathContext) =
+    DescendantOrSelfAxis(NodeWithAncestors(node, List.empty)).flatMap(n => step.select(n.node, context))
 }
 
