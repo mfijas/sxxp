@@ -89,16 +89,16 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
 
   def step: Parser[Step] =
     axisSpecifier ~ nodeTest ~ rep(predicate) ^^ {
-      case axisSpecifier ~ nodeTest ~ predicates => NodeStep(axisSpecifier.axis, nodeTest, predicates)
+      case axisSpecifier ~ nodeTest ~ predicates => NodeStep(axisSpecifier, nodeTest, predicates)
     } |||
       abbreviatedStep
 
-  def axisSpecifier: Parser[AxisSpecifier] =
+  def axisSpecifier: Parser[Axis] =
     axisName <~ "::" ^^ {
-      axis => AxisSpecifier(axis)
+      axis => axis
     } |
       abbreviatedAxisSpecifier ^^ {
-        axis => AxisSpecifier(axis)
+        axis => axis
       }
 
   def axisName: Parser[Axis] =
