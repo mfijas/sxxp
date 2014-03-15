@@ -116,7 +116,7 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
       "preceding-sibling" ^^^ PrecedingSiblingAxis |
       "self" ^^^ SelfAxis
 
-  /* | nodeType <~ "()" | "processing-instruction("~literal~")" */
+  /* | "processing-instruction("~literal~")" */
   def nodeTest: Parser[NodeTest] =
     nameTest ^^ (qname => NameNodeTest(qname)) |
       nodeType <~ "()" ^^ (t => NodeTypeTest(t))
@@ -134,7 +134,7 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
     }
 
   def abbreviatedStep: Parser[Step] =
-    "." ^^^ CurNodeStep |
+    "." ^^^ CurNodeStep |||
       ".." ^^^ ParentNodeStep
 
   def abbreviatedAxisSpecifier: Parser[Axis] = opt("@") ^^ {

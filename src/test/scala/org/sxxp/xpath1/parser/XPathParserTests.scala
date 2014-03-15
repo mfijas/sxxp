@@ -18,7 +18,7 @@ package org.sxxp.xpath1.parser
 
 import org.scalatest.FlatSpec
 import org.sxxp.xpath1.parser.expression._
-import org.sxxp.xpath1.parser.step.{CurNodeStep, AbbreviatedNodeStep, NodeStep}
+import org.sxxp.xpath1.parser.step.{ParentNodeStep, CurNodeStep, AbbreviatedNodeStep, NodeStep}
 import org.sxxp.xpath1.parser.nodetest.{NameNodeTest, NodeTest}
 import org.sxxp.xpath1.parser.path.{AbsoluteLocationPath, AbbreviatedAbsoluteLocationPath, RelativeLocationPath}
 import org.sxxp.xpath1.parser.axis.ChildAxis
@@ -123,6 +123,13 @@ class XPathParserTests extends FlatSpec {
       LocationPathExpression(
         RelativeLocationPath(
           List(CurNodeStep))))
+  }
+
+  it should "parse .." in {
+    verifyPathExprParseResult("..",
+      LocationPathExpression(
+        RelativeLocationPath(
+          List(ParentNodeStep))))
   }
 
   it should "parse a[1]/b[. = 'abcd']" in {
