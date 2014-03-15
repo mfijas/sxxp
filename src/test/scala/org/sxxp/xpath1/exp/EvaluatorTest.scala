@@ -129,5 +129,15 @@ class EvaluatorTest extends FlatSpec {
     assert(result === expected, s"${result.getClass}, ${expected.getClass}")
   }
 
+  it should "select 'b/../a" in {
+    // given
+    val path = "b/../a"
+    val expected = xml \ "a"
+    // when
+    val result = evaluate(xml, path)
+    // then
+    assert(result === expected)
+  }
+
 
 }

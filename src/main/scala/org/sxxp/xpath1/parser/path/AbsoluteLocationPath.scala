@@ -41,7 +41,7 @@ case class AbsoluteLocationPath(steps: List[Step]) extends LocationPath with Log
       curNodeSeq = curNodeSeq.flatMap {
         node =>
           logger.debug("select: node = {}", node)
-          step.select(node.node, context)
+          step.select(node, context)
       }
     }
     curNodeSeq
