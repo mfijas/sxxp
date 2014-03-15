@@ -20,41 +20,41 @@ import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 import scala.xml.NodeSeq
 
 trait XObject {
-  def asBoolean: XBoolean
+  def asXBoolean: XBoolean
 
-  def asNodeSeq: XNodeSeq = ???
+  def asXNodeSeq: XNodeSeq = ???
 
-  def asString: XString
+  def asXString: XString
 
-  def asNumber: XNumber
+  def asXNumber: XNumber
 }
 
 
 case class XNumber(value: Double) extends XObject {
-  override def asBoolean = XBoolean(!value.isNaN && value != 0)
+  override def asXBoolean = XBoolean(!value.isNaN && value != 0)
 
   // TODO make it conform to spec
   // possibly use ugly code from com.sun.org.apache.xpath.internal.objects.XNumber.str()
-  override def asString =
+  override def asXString =
     if (value.toLong.toDouble == value)
       XString(value.toLong.toString)
     else
       XString(value.toString)
 
-  override def asNumber = this
+  override def asXNumber = this
 }
 
 case class XNodeSeq(value: Seq[NodeWithAncestors]) extends XObject {
   def toNodeSeq = NodeSeq.fromSeq(value.map(_.node))
 
-  override def asNodeSeq = this
+  override def asXNodeSeq = this
 
-  override def asBoolean = XBoolean(!value.isEmpty)
+  override def asXBoolean = XBoolean(!value.isEmpty)
 
   // TODO check if it's correct or add reference to spec
-  override def asString = XString(if (value.isEmpty) "" else value.head.node.text)
+  override def asXString = XString(if (value.isEmpty) "" else value.head.node.text)
 
-  override def asNumber = asString.asNumber
+  override def asXNumber = asXString.asXNumber
 
   def text = value.map(_.node.text).mkString
 
@@ -79,29 +79,29 @@ case class XNodeSeq(value: Seq[NodeWithAncestors]) extends XObject {
   }
 
   def isEqualTo(other: XNumber) =
-    value.exists(n => XString(n.node.text).asNumber == other)
+    value.exists(n => XString(n.node.text).asXNumber == other)
 
   def isEqualTo(other: XString) =
     value.exists(n => n.node.text == other.value)
 
   def isEqualTo(other: XBoolean) =
-    asBoolean == other
+    asXBoolean == other
 }
 
 case class XBoolean(value: Boolean) extends XObject {
-  override def asBoolean = this
+  override def asXBoolean = this
 
-  override def asNumber = XNumber(if (value) 1 else 0)
+  override def asXNumber = XNumber(if (value) 1 else 0)
 
-  override def asString = XString(value.toString)
+  override def asXString = XString(value.toString)
 }
 
 case class XString(value: String) extends XObject {
-  override def asString = this
+  override def asXString = this
 
-  override def asBoolean = XBoolean(value.nonEmpty)
+  override def asXBoolean = XBoolean(value.nonEmpty)
 
-  override def asNumber = {
+  override def asXNumber = {
     // TODO verify with specification
     XNumber(
       try {

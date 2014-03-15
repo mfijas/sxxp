@@ -22,5 +22,5 @@ import org.sxxp.xpath1.parser.QName
 object NumberFunction extends UnaryFunction {
   val QNAME = QName("", "", "number")
 
-  override def apply(arg: XObject) = arg.asNumber
+  override def apply(arg: XObject) = arg.asXNumber
 }

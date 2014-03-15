@@ -22,5 +22,5 @@ import org.sxxp.xpath1.parser.QName
 object BooleanFunction extends UnaryFunction {
   val QNAME = QName("", "", "boolean")
 
-  override def apply(arg: XObject): XObject = arg.asBoolean
+  override def apply(arg: XObject): XObject = arg.asXBoolean
 }

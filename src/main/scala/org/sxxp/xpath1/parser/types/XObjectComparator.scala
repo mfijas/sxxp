@@ -35,14 +35,14 @@ object XObjectComparator {
         seq.isEqualTo(boolean)
 
       case (boolean: XBoolean, obj: XObject) =>
-        boolean == obj.asBoolean
+        boolean == obj.asXBoolean
       case (obj: XObject, boolean: XBoolean) =>
-        boolean == obj.asBoolean
+        boolean == obj.asXBoolean
 
       case (number: XNumber, obj: XObject) =>
-        number == obj.asNumber
+        number == obj.asXNumber
       case (obj: XObject, number: XNumber) =>
-        number == obj.asNumber
+        number == obj.asXNumber
 
       case (left: XObject, right: XObject) =>
         left.toString == right.toString
