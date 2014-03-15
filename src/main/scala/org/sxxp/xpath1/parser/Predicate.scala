@@ -26,7 +26,7 @@ case class Predicate(expr: Expression) {
     expr.evaluate(node, context) match {
       case XNumber(number) => nodeIndex == number.toInt
       case XBoolean(isTrue) => isTrue
-      case __ => ???
+      case _ => ???
     }
   }
 
