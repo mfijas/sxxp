@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
-package org.sxxp.xpath1.parser.path
+package org.sxxp.xpath1.parser.types
 
-import org.sxxp.xpath1.parser.step.Step
-import scala.xml.Node
-import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
-/**
- * Root element location path: "/"
- */
-case object RootLocationPath extends LocationPath {
-  override val steps: List[Step] = List.empty
-
-  override def :+(step: Step): LocationPath = throw new IllegalStateException("cannot add step to root location")
-
-  override def select(currentNode: Node, context: XPathContext) = Seq(NodeWithAncestors(context.rootNode, List()))
+object NodeWithAncestorsSeq {
+  def extractText(nodes: Seq[NodeWithAncestors]) =
+    (nodes map (_.node.text)).mkString
 }

@@ -17,9 +17,10 @@
 package org.sxxp.xpath1.parser.path
 
 import org.sxxp.xpath1.parser.step.Step
-import scala.xml.{TopScope, NodeSeq, Node, Elem}
+import scala.xml.{TopScope, Node, Elem}
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
+import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
 
 /**
@@ -32,17 +33,15 @@ case class AbsoluteLocationPath(steps: List[Step]) extends LocationPath with Log
   private def dummyRoot(child: Node) =
     Elem(null, "dummy-root", scala.xml.Null, TopScope, false, child)
 
-  override def select(currentNode: Node, context: XPathContext): NodeSeq = {
-    var curNodeSeq: NodeSeq = dummyRoot(context.rootNode)
-
+  override def select(currentNode: Node, context: XPathContext) = {
+    var curNodeSeq: Seq[NodeWithAncestors] = Seq(NodeWithAncestors(dummyRoot(context.rootNode), List.empty))
     // TODO verify this if clause
     for (step <- steps if !curNodeSeq.isEmpty) {
       logger.debug("select: step = {}", step)
       curNodeSeq = curNodeSeq.flatMap {
         node =>
           logger.debug("select: node = {}", node)
-          // TODO change return value to NodeWithAncestors
-          step.select(node, context).map(_.node)
+          step.select(node.node, context)
       }
     }
     curNodeSeq

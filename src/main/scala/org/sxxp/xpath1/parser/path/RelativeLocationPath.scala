@@ -16,25 +16,26 @@
 
 package org.sxxp.xpath1.parser.path
 
-import scala.xml.{NodeSeq, Node}
+import scala.xml.Node
 import org.sxxp.xpath1.parser.step.Step
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
+import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
 
 case class RelativeLocationPath(steps: List[Step]) extends LocationPath with Logging {
   def :+(step: Step) = RelativeLocationPath(steps :+ step)
 
-  override def select(currentNode: Node, context: XPathContext): NodeSeq = {
-    var curNodeSeq: NodeSeq = currentNode
+  override def select(currentNode: Node, context: XPathContext) = {
+    // XXX this is obviously crap (should have currentNode as NodeWithAncestors
+    var curNodeSeq: Seq[NodeWithAncestors] = Seq(NodeWithAncestors(currentNode, List()))
     // TODO verify this if clause
     for (step <- steps if !curNodeSeq.isEmpty) {
       logger.debug("select: step = {}", step)
       curNodeSeq = curNodeSeq.flatMap {
         node =>
           logger.debug(s"select: node = {}", node)
-          // TODO change return value to NodeWithAncestors
-          step.select(node, context).map(_.node)
+          step.select(node.node, context)
       }
     }
     curNodeSeq

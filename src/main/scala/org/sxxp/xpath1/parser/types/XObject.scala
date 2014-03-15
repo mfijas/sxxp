@@ -16,8 +16,8 @@
 
 package org.sxxp.xpath1.parser.types
 
+import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 import scala.xml.NodeSeq
-
 
 trait XObject {
   def asBoolean: XBoolean
@@ -44,18 +44,23 @@ case class XNumber(value: Double) extends XObject {
   override def asNumber = this
 }
 
-case class XNodeSeq(value: NodeSeq) extends XObject {
+case class XNodeSeq(value: Seq[NodeWithAncestors]) extends XObject {
+  def toNodeSeq = NodeSeq.fromSeq(value.map(_.node))
+
   override def asNodeSeq = this
 
   override def asBoolean = XBoolean(!value.isEmpty)
 
-  override def asString = XString(if (value.isEmpty) "" else value(0).text)
+  // TODO check if it's correct or add reference to spec
+  override def asString = XString(if (value.isEmpty) "" else value.head.node.text)
 
   override def asNumber = asString.asNumber
 
+  def text = value.map(_.node.text).mkString
+
   def isEqualTo(other: XNodeSeq) = {
     def simpleComparison =
-      value.text == other.value.text
+      text == other.text
 
     def complexComparison = {
       /*
@@ -66,18 +71,18 @@ case class XNodeSeq(value: NodeSeq) extends XObject {
       // TODO check if this optimization is right
       val (shorter, longer) =
         if (value.length < other.value.length) (value, other.value) else (other.value, value)
-      val shorterTexts = shorter.map(_.text).toSet
-      longer.exists(node => shorterTexts.contains(node.text))
+      val shorterTexts = shorter.map(_.node.text).toSet
+      longer.exists(n => shorterTexts.contains(n.node.text))
     }
 
     if (value.length == 1 && other.value.length == 1) simpleComparison else complexComparison
   }
 
   def isEqualTo(other: XNumber) =
-    value.exists(node => XString(node.text).asNumber == other)
+    value.exists(n => XString(n.node.text).asNumber == other)
 
   def isEqualTo(other: XString) =
-    value.exists(node => node.text == other.value)
+    value.exists(n => n.node.text == other.value)
 
   def isEqualTo(other: XBoolean) =
     asBoolean == other
@@ -94,7 +99,7 @@ case class XBoolean(value: Boolean) extends XObject {
 case class XString(value: String) extends XObject {
   override def asString = this
 
-  override def asBoolean = XBoolean(!value.isEmpty)
+  override def asBoolean = XBoolean(value.nonEmpty)
 
   override def asNumber = {
     // TODO verify with specification

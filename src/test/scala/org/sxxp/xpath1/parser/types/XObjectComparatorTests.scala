@@ -17,7 +17,7 @@
 package org.sxxp.xpath1.parser.types
 
 import org.scalatest.FlatSpec
-import scala.xml.NodeSeq
+import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
 class XObjectComparatorTests extends FlatSpec {
 
@@ -25,21 +25,23 @@ class XObjectComparatorTests extends FlatSpec {
 
   "XObjectComparator" should "compare two nodeSeqs" in {
     // given
-    val left = XNodeSeq(
-      <x1>
-        <a>poi</a>
-        <a>abc</a>
-        <a>iop</a>
-      </x1> \ "a")
-    val right = XNodeSeq(
-      <x2>
-        <a>qwe</a>
-        <a>ewq</a>
-        <a>abc</a>
-      </x2> \ "a")
-    val singleNode = XNodeSeq(
+    val leftXml = <x1>
+      <a>poi</a>
       <a>abc</a>
-    )
+      <a>iop</a>
+    </x1>
+    val aNodes = leftXml \ "a"
+    val left = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(leftXml))))
+
+    val rightXml = <x2>
+      <a>qwe</a>
+      <a>ewq</a>
+      <a>abc</a>
+    </x2>
+    val rightANodes = rightXml \ "a"
+    val right = XNodeSeq(
+      rightANodes.map(NodeWithAncestors(_, List(rightXml))))
+    val singleNode = XNodeSeq(Seq(NodeWithAncestors(<a>abc</a>, List.empty)))
 
     // then
     assert(isEqual(left, right))
@@ -50,12 +52,13 @@ class XObjectComparatorTests extends FlatSpec {
 
   it should "compare nodeSeq and number" in {
     // given
-    val nodeSeq = XNodeSeq(
-      <x1>
-        <a>123</a>
-        <a>234</a>
-        <a>345</a>
-      </x1> \ "a")
+    val xml = <x1>
+      <a>123</a>
+      <a>234</a>
+      <a>345</a>
+    </x1>
+    val aNodes = xml \ "a"
+    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
     val number = XNumber(234)
     val otherNumber = XNumber(111)
 
@@ -67,13 +70,14 @@ class XObjectComparatorTests extends FlatSpec {
   }
 
   it should "compare nodeSeq and string" in {
+    val xml = <x1>
+      <a>abc</a>
+      <a>bcd</a>
+      <a>efg</a>
+    </x1>
+    val aNodes = xml \ "a"
     // given
-    val nodeSeq = XNodeSeq(
-      <x1>
-        <a>abc</a>
-        <a>bcd</a>
-        <a>efg</a>
-      </x1> \ "a")
+    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
     val string = XString("bcd")
     val otherString = XString("aaa")
 
@@ -86,13 +90,14 @@ class XObjectComparatorTests extends FlatSpec {
 
   it should "compare nodeSeq and boolean" in {
     // given
-    val nodeSeq = XNodeSeq(
-      <x1>
-        <a>abc</a>
-        <a>bcd</a>
-        <a>efg</a>
-      </x1> \ "a")
-    val emptyNodeSeq = XNodeSeq(NodeSeq.Empty)
+    val xml = <x1>
+      <a>abc</a>
+      <a>bcd</a>
+      <a>efg</a>
+    </x1>
+    val aNodes = xml \ "a"
+    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
+    val emptyNodeSeq = XNodeSeq(Seq.empty)
     val xtrue = XBoolean(true)
     val xfalse = XBoolean(false)
 

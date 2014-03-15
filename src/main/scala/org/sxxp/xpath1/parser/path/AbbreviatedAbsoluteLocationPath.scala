@@ -17,7 +17,7 @@
 package org.sxxp.xpath1.parser.path
 
 import org.sxxp.xpath1.parser.step.Step
-import scala.xml.{NodeSeq, Node}
+import scala.xml.Node
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
 import org.sxxp.xpath1.parser.axis.{DescendantOrSelfAxis, NodeWithAncestors}
@@ -29,7 +29,7 @@ case class AbbreviatedAbsoluteLocationPath(steps: List[Step]) extends LocationPa
   override def :+(step: Step): LocationPath = AbbreviatedAbsoluteLocationPath(steps :+ step)
 
   override def select(currentNode: Node, context: XPathContext) = {
-    // TODO change fully to NodeWithAncestors
+    // XXX this is obviously crap (should have currentNode as NodeWithAncestors
     var curNodeSeq: Seq[NodeWithAncestors] = DescendantOrSelfAxis(NodeWithAncestors(context.rootNode, List.empty))
     // TODO verify this if clause
     for (step <- steps if !curNodeSeq.isEmpty) {
@@ -40,8 +40,7 @@ case class AbbreviatedAbsoluteLocationPath(steps: List[Step]) extends LocationPa
           step.select(node.node, context)
       }
     }
-    // TODO change return value to NodeWithAncestors
-    NodeSeq.fromSeq(curNodeSeq.map(_.node))
+    curNodeSeq
   }
 }
 

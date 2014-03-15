@@ -18,6 +18,7 @@ package org.sxxp.xpath1.parser.function
 
 import org.scalatest.FlatSpec
 import org.sxxp.xpath1.parser.types.{XNodeSeq, XBoolean, XString, XNumber}
+import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
 class NumberFunctionTests extends FlatSpec {
 
@@ -78,13 +79,13 @@ class NumberFunctionTests extends FlatSpec {
 
   it should "return XNumber for parsed string value of first node in the nodeSeq" in {
     // given
-    val nodeSeq = XNodeSeq(
-      <x1>
-        <a>123</a>
-        <a>456</a>
-        <a>789</a>
-      </x1> \ "a"
-    )
+    val xml = <x1>
+      <a>123</a>
+      <a>456</a>
+      <a>789</a>
+    </x1>
+    val aNodes = xml \ "a"
+    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
 
     // when
     val result = NumberFunction(nodeSeq)

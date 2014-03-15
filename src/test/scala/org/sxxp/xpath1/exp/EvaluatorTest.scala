@@ -47,7 +47,7 @@ class EvaluatorTest extends FlatSpec {
 
   def evaluate(node: Node, path: String) =
     Evaluator.evaluate(node, parser.parsePathExpression(path)) match {
-      case XNodeSeq(nodeSeq) => nodeSeq
+      case xNodeSeq: XNodeSeq => xNodeSeq.toNodeSeq
       case _ => fail("XNodeSeq expected when evaluating PathExpression")
     }
 

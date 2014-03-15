@@ -27,6 +27,7 @@ import org.sxxp.xpath1.parser.types.XString
 import org.sxxp.xpath1.parser.types.XNodeSeq
 import org.sxxp.xpath1.parser.Predicate
 import org.sxxp.xpath1.exp.XPathContext
+import org.sxxp.xpath1.parser.axis.DescendantOrSelfAxis
 
 trait Expression {
   def evaluate(node: Node, context: XPathContext): XObject = ???
@@ -101,27 +102,23 @@ case class FilterExpression(expr: Expression, predicate: Predicate) extends Expr
   override def evaluate(node: Node, context: XPathContext): XObject = {
     XNodeSeq(expr.evaluate(node, context).asNodeSeq.value.zipWithIndex.filter {
       case (n, index) =>
-        predicate.evaluate(n, index + 1, context)
-    }.map {
-      case (n, _) =>
-        n
-    })
+        predicate.evaluate(n.node, index + 1, context)
+    }.map(_._1))
   }
 }
 
 case class PathExpression(expr: Expression, path: LocationPath) extends Expression {
   override def evaluate(node: Node, context: XPathContext) = {
     val nodeSeq = expr.evaluate(node, context).asNodeSeq.value
-    XNodeSeq(nodeSeq.flatMap(n => path.select(n, context)))
+    XNodeSeq(nodeSeq.flatMap(n => path.select(n.node, context)))
   }
 }
 
 case class AbbreviatedPathExpression(expr: Expression, path: LocationPath) extends Expression {
   override def evaluate(node: Node, context: XPathContext) = {
     val nodeSeq = expr.evaluate(node, context).asNodeSeq.value
-    // TODO optimize it
-    val descendants = nodeSeq.flatMap(n => n.descendant_or_self)
-    XNodeSeq(descendants.flatMap(n => path.select(n, context)))
+    val descendants = nodeSeq.flatMap(n => DescendantOrSelfAxis(n))
+    XNodeSeq(descendants.flatMap(n => path.select(n.node, context)))
   }
 }
 

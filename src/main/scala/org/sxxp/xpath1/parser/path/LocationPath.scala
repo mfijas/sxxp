@@ -17,13 +17,14 @@
 package org.sxxp.xpath1.parser.path
 
 import org.sxxp.xpath1.parser.step.Step
-import scala.xml.{NodeSeq, Node}
+import scala.xml.Node
 import org.sxxp.xpath1.exp.XPathContext
+import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
 trait LocationPath {
   val steps: List[Step]
 
   def :+(step: Step): LocationPath
 
-  def select(currentNode: Node, context: XPathContext): NodeSeq
+  def select(currentNode: Node, context: XPathContext): Seq[NodeWithAncestors]
 }

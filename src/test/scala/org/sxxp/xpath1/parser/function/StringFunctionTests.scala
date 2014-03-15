@@ -18,17 +18,18 @@ package org.sxxp.xpath1.parser.function
 
 import org.scalatest.FlatSpec
 import org.sxxp.xpath1.parser.types.{XBoolean, XNumber, XString, XNodeSeq}
-import scala.xml.NodeSeq
+import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
 class StringFunctionTests extends FlatSpec {
 
   "StringFunction" should "return XString containing string-value of first node of nodeSeq" in {
     // given
-    val nodeSeq = XNodeSeq(
-      <x1>
-        <a>abc</a> <a>def</a> <a>ghi</a>
-      </x1> \ "a"
-    )
+
+    val xml = <x1>
+      <a>abc</a> <a>def</a> <a>ghi</a>
+    </x1>
+    val aNodes = xml \ "a"
+    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
 
     // when
     val result = StringFunction(nodeSeq)
@@ -39,7 +40,7 @@ class StringFunctionTests extends FlatSpec {
 
   it should "return XString('') for empty nodeSeq" in {
     // given
-    val nodeSeq = XNodeSeq(NodeSeq.Empty)
+    val nodeSeq = XNodeSeq(Seq.empty)
 
     // when
     val result = StringFunction(nodeSeq)
