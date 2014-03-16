@@ -277,7 +277,17 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
 
   // http://www.w3.org/TR/REC-xml/#NT-Name
   // TODO change to match the spec
-  def name: Parser[String] = ident
+  def name: Parser[String] = nameStartChar ~ (nameChar *) ^^ {
+    case startChar ~ chars => startChar + chars.mkString
+  }
+
+  // these were in spec but aren't currently included in nameStartChar
+  // :|[\u10000-\uEFFFF]
+  def nameStartChar: Parser[String] = ("""[A-Z]|_|[a-z]|[\u00C0-\u00D6]|[\u00D8-\u00F6]|[\u00F8-\u02FF]""" +
+    """|[\u0370-\u037D]|[\u037F-\u1FFF]|[\u200C-\u200D]|[\u2070-\u218F]|[\u2C00-\u2FEF]|[\u3001-\uD7FF]""" +
+    """|[\uF900-\uFDCF]|[\uFDF0-\uFFFD]""").r
+
+  def nameChar: Parser[String] = nameStartChar | """-|\.|[0-9]|\u00B7|[\u0300-\u036f]|[\u203F-\u2040]""".r
 
   // http://www.w3.org/TR/REC-xml-names/#NT-NCName
   def ncname: Parser[String] = name

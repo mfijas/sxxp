@@ -188,4 +188,9 @@ class XPathParserTests extends FlatSpec {
         RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))))
   }
 
+  it should "parse name containing hyphen 'test-node'" in {
+    verifyPathExprParseResult("test-node",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("test-node")), List())))))
+  }
+
 }
