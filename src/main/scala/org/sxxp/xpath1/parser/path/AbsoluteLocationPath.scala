@@ -34,7 +34,8 @@ case class AbsoluteLocationPath(steps: List[Step]) extends LocationPath with Log
     Elem(null, "dummy-root", scala.xml.Null, TopScope, false, child)
 
   override def select(currentNode: NodeWithAncestors, context: XPathContext) = {
-    var curNodeSeq: Seq[NodeWithAncestors] = Seq(NodeWithAncestors(dummyRoot(context.rootNode), List.empty))
+    // HACK
+    var curNodeSeq: Seq[NodeWithAncestors] = Seq(NodeWithAncestors(dummyRoot(context.rootNode.node), List.empty))
     // TODO verify this if clause
     for (step <- steps if !curNodeSeq.isEmpty) {
       logger.debug("select: step = {}", step)

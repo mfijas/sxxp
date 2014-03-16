@@ -16,6 +16,6 @@
 
 package org.sxxp.xpath1.exp
 
-import scala.xml.Node
+import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
-case class XPathContext(rootNode: Node)
+case class XPathContext(rootNode: NodeWithAncestors)

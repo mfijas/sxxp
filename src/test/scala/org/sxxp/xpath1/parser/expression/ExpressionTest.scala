@@ -121,9 +121,10 @@ class ExpressionTest extends FlatSpec {
     val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List()))))
     val path = RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))
     val pathExpression = PathExpression(expression, path)
+    val nodeWithAncestors = NodeWithAncestors(xml, List())
 
     // when
-    val result = pathExpression.evaluate(NodeWithAncestors(xml, List()), XPathContext(xml)).toNodeSeq
+    val result = pathExpression.evaluate(nodeWithAncestors, XPathContext(nodeWithAncestors)).toNodeSeq
 
     // then
     assert(result === xml \ "a" \ "b")
@@ -134,9 +135,10 @@ class ExpressionTest extends FlatSpec {
     val expression = LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List()))))
     val path = RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("c")), List())))
     val pathExpression = AbbreviatedPathExpression(expression, path)
+    val nodeWithAncestors = NodeWithAncestors(xml, List())
 
     // when
-    val result = pathExpression.evaluate(NodeWithAncestors(xml, List()), XPathContext(xml)).toNodeSeq
+    val result = pathExpression.evaluate(nodeWithAncestors, XPathContext(nodeWithAncestors)).toNodeSeq
 
     // then
     assert(result === xml \ "a" \\ "c")

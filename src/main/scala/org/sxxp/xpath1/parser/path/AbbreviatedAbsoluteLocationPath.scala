@@ -29,7 +29,7 @@ case class AbbreviatedAbsoluteLocationPath(steps: List[Step]) extends LocationPa
 
   override def select(currentNode: NodeWithAncestors, context: XPathContext) = {
     // XXX this is obviously crap (should have currentNode as NodeWithAncestors
-    var curNodeSeq: Seq[NodeWithAncestors] = DescendantOrSelfAxis(NodeWithAncestors(context.rootNode, List.empty))
+    var curNodeSeq: Seq[NodeWithAncestors] = DescendantOrSelfAxis(context.rootNode)
     // TODO verify this if clause
     for (step <- steps if !curNodeSeq.isEmpty) {
       logger.debug("select: step = {}", step)

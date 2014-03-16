@@ -28,5 +28,5 @@ case object RootLocationPath extends LocationPath {
 
   override def :+(step: Step): LocationPath = throw new IllegalStateException("cannot add step to root location")
 
-  override def select(currentNode: NodeWithAncestors, context: XPathContext) = Seq(NodeWithAncestors(context.rootNode, List()))
+  override def select(currentNode: NodeWithAncestors, context: XPathContext) = Seq(context.rootNode)
 }

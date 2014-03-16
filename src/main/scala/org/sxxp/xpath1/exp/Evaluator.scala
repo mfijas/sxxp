@@ -23,7 +23,8 @@ import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 object Evaluator {
 
   def evaluate(node: Node, expression: Expression) = {
-    expression.evaluate(NodeWithAncestors(node, List()), XPathContext(node))
+    val nodeWithAncestors = NodeWithAncestors(node, List())
+    expression.evaluate(nodeWithAncestors, XPathContext(nodeWithAncestors))
   }
 
 
