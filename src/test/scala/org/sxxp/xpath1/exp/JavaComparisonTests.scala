@@ -100,6 +100,8 @@ class JavaComparisonTests extends FunSuite {
     compareResult("test.xml", "numbers/n[number(.) = 234]")
     compareResult("test.xml", "numbers/n[boolean(.)]")
     compareResult("test.xml", "numbers/n[string(.) = '234']")
+
+    compareResult("test.xml", "numbers/..//aa")
   }
 
   test("root selector") {
