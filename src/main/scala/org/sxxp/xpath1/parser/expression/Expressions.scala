@@ -16,7 +16,6 @@
 
 package org.sxxp.xpath1.parser.expression
 
-import scala.xml.Node
 import org.sxxp.xpath1.parser.path.LocationPath
 import org.sxxp.xpath1.parser.types._
 import org.sxxp.xpath1.parser.QName
@@ -27,24 +26,24 @@ import org.sxxp.xpath1.parser.types.XString
 import org.sxxp.xpath1.parser.types.XNodeSeq
 import org.sxxp.xpath1.parser.Predicate
 import org.sxxp.xpath1.exp.XPathContext
-import org.sxxp.xpath1.parser.axis.DescendantOrSelfAxis
+import org.sxxp.xpath1.parser.axis.{NodeWithAncestors, DescendantOrSelfAxis}
 
 trait Expression {
-  def evaluate(node: Node, context: XPathContext): XObject = ???
+  def evaluate(node: NodeWithAncestors, context: XPathContext): XObject = ???
 }
 
 case class OrExpression(left: Expression, right: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XBoolean(left.evaluate(node, context).asXBoolean.value || right.evaluate(node, context).asXBoolean.value)
 }
 
 case class AndExpression(left: Expression, right: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XBoolean(left.evaluate(node, context).asXBoolean.value && right.evaluate(node, context).asXBoolean.value)
 }
 
 case class EqExpression(left: Expression, right: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XBoolean(XObjectComparator.isEqual(left.evaluate(node, context), right.evaluate(node, context)))
 }
 
@@ -59,72 +58,72 @@ case class LtEExpression(left: Expression, right: Expression) extends Expression
 case class GtEExpression(left: Expression, right: Expression) extends Expression
 
 case class SumExpression(left: Expression, right: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XNumber(left.evaluate(node, context).asXNumber.value + right.evaluate(node, context).asXNumber.value)
 }
 
 case class SubtractExpression(left: Expression, right: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XNumber(left.evaluate(node, context).asXNumber.value - right.evaluate(node, context).asXNumber.value)
 }
 
 case class MultiplyExpression(left: Expression, right: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XNumber(left.evaluate(node, context).asXNumber.value * right.evaluate(node, context).asXNumber.value)
 }
 
 case class DivExpression(left: Expression, right: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XNumber(left.evaluate(node, context).asXNumber.value / right.evaluate(node, context).asXNumber.value)
 }
 
 case class ModExpression(left: Expression, right: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XNumber(left.evaluate(node, context).asXNumber.value % right.evaluate(node, context).asXNumber.value)
 }
 
 case class MinusExpression(exp: Expression) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) =
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
     XNumber(-exp.evaluate(node, context).asXNumber.value)
 }
 
 case class UnionExpression(left: Expression, right: Expression) extends Expression
 
 case class LiteralExpression(value: String) extends Expression {
-  override def evaluate(node: Node, context: XPathContext): XObject = XString(value)
+  override def evaluate(node: NodeWithAncestors, context: XPathContext): XObject = XString(value)
 }
 
 case class NumberExpression(value: Double) extends Expression {
-  override def evaluate(node: Node, context: XPathContext): XObject = XNumber(value)
+  override def evaluate(node: NodeWithAncestors, context: XPathContext): XObject = XNumber(value)
 }
 
 case class FilterExpression(expr: Expression, predicate: Predicate) extends Expression {
-  override def evaluate(node: Node, context: XPathContext): XObject = {
+  override def evaluate(node: NodeWithAncestors, context: XPathContext): XObject = {
     XNodeSeq(expr.evaluate(node, context).asXNodeSeq.value.zipWithIndex.filter {
       case (n, index) =>
-        predicate.evaluate(n.node, index + 1, context)
+        predicate.evaluate(n, index + 1, context)
     }.map(_._1))
   }
 }
 
 case class PathExpression(expr: Expression, path: LocationPath) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) = {
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) = {
     val nodeSeq = expr.evaluate(node, context).asXNodeSeq.value
-    XNodeSeq(nodeSeq.flatMap(n => path.select(n.node, context)))
+    XNodeSeq(nodeSeq.flatMap(n => path.select(n, context)))
   }
 }
 
 case class AbbreviatedPathExpression(expr: Expression, path: LocationPath) extends Expression {
-  override def evaluate(node: Node, context: XPathContext) = {
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) = {
     val nodeSeq = expr.evaluate(node, context).asXNodeSeq.value
     val descendants = nodeSeq.flatMap(n => DescendantOrSelfAxis(n))
-    XNodeSeq(descendants.flatMap(n => path.select(n.node, context)))
+    XNodeSeq(descendants.flatMap(n => path.select(n, context)))
   }
 }
 
 case class FunctionCallExpression(functionName: QName, arguments: List[Expression]) extends Expression {
 
-  override def evaluate(node: Node, context: XPathContext) = {
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) = {
 
     def assertArity(arity: Int) =
       if (arity != arguments.length)

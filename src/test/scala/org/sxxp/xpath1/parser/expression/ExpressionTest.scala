@@ -23,7 +23,7 @@ import org.sxxp.xpath1.parser.path.RelativeLocationPath
 import org.sxxp.xpath1.parser.step.NodeStep
 import org.sxxp.xpath1.parser.nodetest.NameNodeTest
 import org.sxxp.xpath1.exp.XPathContext
-import org.sxxp.xpath1.parser.axis.ChildAxis
+import org.sxxp.xpath1.parser.axis.{NodeWithAncestors, ChildAxis}
 
 class ExpressionTest extends FlatSpec {
 
@@ -123,7 +123,7 @@ class ExpressionTest extends FlatSpec {
     val pathExpression = PathExpression(expression, path)
 
     // when
-    val result = pathExpression.evaluate(xml, XPathContext(xml)).toNodeSeq
+    val result = pathExpression.evaluate(NodeWithAncestors(xml, List()), XPathContext(xml)).toNodeSeq
 
     // then
     assert(result === xml \ "a" \ "b")
@@ -136,7 +136,7 @@ class ExpressionTest extends FlatSpec {
     val pathExpression = AbbreviatedPathExpression(expression, path)
 
     // when
-    val result = pathExpression.evaluate(xml, XPathContext(xml)).toNodeSeq
+    val result = pathExpression.evaluate(NodeWithAncestors(xml, List()), XPathContext(xml)).toNodeSeq
 
     // then
     assert(result === xml \ "a" \\ "c")

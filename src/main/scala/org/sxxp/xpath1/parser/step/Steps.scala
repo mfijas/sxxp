@@ -48,7 +48,7 @@ case class NodeStep(axis: Axis, nodeTest: NodeTest, predicates: List[Predicate])
       case (n, index) =>
         predicates.forall {
           predicate =>
-            val result = predicate.evaluate(n.node, index + 1, context)
+            val result = predicate.evaluate(n, index + 1, context)
             logger.debug("predicate: {}, result: {}", predicate, result)
             result
         }

@@ -17,7 +17,6 @@
 package org.sxxp.xpath1.parser.path
 
 import org.sxxp.xpath1.parser.step.Step
-import scala.xml.Node
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 
@@ -29,5 +28,5 @@ case object RootLocationPath extends LocationPath {
 
   override def :+(step: Step): LocationPath = throw new IllegalStateException("cannot add step to root location")
 
-  override def select(currentNode: Node, context: XPathContext) = Seq(NodeWithAncestors(context.rootNode, List()))
+  override def select(currentNode: NodeWithAncestors, context: XPathContext) = Seq(NodeWithAncestors(context.rootNode, List()))
 }

@@ -17,7 +17,6 @@
 package org.sxxp.xpath1.parser.path
 
 import org.sxxp.xpath1.parser.step.Step
-import scala.xml.Node
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
 import org.sxxp.xpath1.parser.axis.{DescendantOrSelfAxis, NodeWithAncestors}
@@ -28,7 +27,7 @@ import org.sxxp.xpath1.parser.axis.{DescendantOrSelfAxis, NodeWithAncestors}
 case class AbbreviatedAbsoluteLocationPath(steps: List[Step]) extends LocationPath with Logging {
   override def :+(step: Step): LocationPath = AbbreviatedAbsoluteLocationPath(steps :+ step)
 
-  override def select(currentNode: Node, context: XPathContext) = {
+  override def select(currentNode: NodeWithAncestors, context: XPathContext) = {
     // XXX this is obviously crap (should have currentNode as NodeWithAncestors
     var curNodeSeq: Seq[NodeWithAncestors] = DescendantOrSelfAxis(NodeWithAncestors(context.rootNode, List.empty))
     // TODO verify this if clause
