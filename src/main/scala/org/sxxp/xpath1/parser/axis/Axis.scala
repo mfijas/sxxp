@@ -42,6 +42,8 @@ object ChildAxis extends Axis {
     val ancestorsForChild = node :: nodeWithAncestors.ancestors
     node.child.toStream.map(NodeWithAncestors(_, ancestorsForChild))
   }
+
+  override def toString = "ChildAxis"
 }
 
 object DescendantAxis extends Axis {
