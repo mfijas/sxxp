@@ -23,12 +23,7 @@ abstract class Axis {
 
 object AncestorAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors): Stream[NodeWithAncestors] =
-    nodeWithAncestors.ancestors match {
-      case head :: tail =>
-        val parent = NodeWithAncestors(head, tail)
-        parent #:: AncestorAxis(parent)
-      case _ => Stream.empty
-    }
+    nodeWithAncestors.parent.map(p => p #:: AncestorAxis(p)).getOrElse(Stream.empty)
 }
 
 object AncestorOrSelfAxis extends Axis {
@@ -89,7 +84,7 @@ object NamespaceAxis extends Axis {
 
 object ParentAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) =
-    Seq(NodeWithAncestors(nodeWithAncestors.ancestors.head, nodeWithAncestors.ancestors.tail))
+    nodeWithAncestors.parent.toSeq
 }
 
 object PrecedingAxis extends Axis {

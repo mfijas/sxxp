@@ -18,4 +18,9 @@ package org.sxxp.xpath1.parser.axis
 
 import scala.xml.Node
 
-case class NodeWithAncestors(node: Node, ancestors: List[Node])
+case class NodeWithAncestors(node: Node, ancestors: List[Node]) {
+  def parent = ancestors match {
+    case head :: tail => Some(NodeWithAncestors(head, tail))
+    case List() => None
+  }
+}

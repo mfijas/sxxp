@@ -20,7 +20,7 @@ import org.sxxp.xpath1.parser.Predicate
 import org.sxxp.xpath1.parser.nodetest.NodeTest
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
-import org.sxxp.xpath1.parser.axis.{DescendantOrSelfAxis, NodeWithAncestors, Axis}
+import org.sxxp.xpath1.parser.axis.{ParentAxis, DescendantOrSelfAxis, NodeWithAncestors, Axis}
 
 trait Step {
   def select(node: NodeWithAncestors, context: XPathContext): Seq[NodeWithAncestors]
@@ -39,7 +39,7 @@ case object CurNodeStep extends Step {
  */
 case object ParentNodeStep extends Step {
   override def select(node: NodeWithAncestors, context: XPathContext) =
-    Seq(NodeWithAncestors(node.ancestors.head, node.ancestors.tail))
+    ParentAxis(node)
 }
 
 case class NodeStep(axis: Axis, nodeTest: NodeTest, predicates: List[Predicate]) extends Step with Logging {
