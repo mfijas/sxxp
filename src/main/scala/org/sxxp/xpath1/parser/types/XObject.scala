@@ -56,7 +56,7 @@ case class XNodeSeq(value: Seq[NodeWithAncestors]) extends XObject {
 
   override def asXNumber = asXString.asXNumber
 
-  def text = value.map(_.node.text).mkString
+  def text = NodeWithAncestorsSeq.extractText(value)
 
   def isEqualTo(other: XNodeSeq) = {
     def simpleComparison =
