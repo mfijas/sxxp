@@ -1,5 +1,5 @@
-import de.johoop.jacoco4sbt._
-import JacocoPlugin._
+//import de.johoop.jacoco4sbt._
+//import JacocoPlugin._
 
 name := "sxxp"
 
@@ -12,12 +12,16 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.6"
 )
 
-jacoco.settings
+//jacoco.settings
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-u", "%s" format (target.value / "../shippable/testresults"))
 
-jacoco.outputDirectory in jacoco.Config := target.value / "../shippable/codecoverage"
+//jacoco.outputDirectory in jacoco.Config := target.value / "../shippable/codecoverage"
 
-jacoco.reportFormats in jacoco.Config := Seq(
-  XMLReport(encoding = "utf-8"),
-  ScalaHTMLReport(withBranchCoverage = true))
+//jacoco.reportFormats in jacoco.Config := Seq(
+//  XMLReport(encoding = "utf-8"),
+//  ScalaHTMLReport(withBranchCoverage = true))
+
+ScoverageSbtPlugin.instrumentSettings
+
+CoverallsPlugin.coverallsSettings

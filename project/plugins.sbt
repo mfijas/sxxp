@@ -1,3 +1,9 @@
 logLevel := Level.Warn
 
-addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.4")
+resolvers += Classpaths.sbtPluginReleases
+
+addSbtPlugin("com.sksamuel.scoverage" % "sbt-scoverage" % "0.95.9")
+
+addSbtPlugin("com.sksamuel.scoverage" %% "sbt-coveralls" % "0.0.5")
+
+//addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.4")
