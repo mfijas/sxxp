@@ -210,7 +210,19 @@ class AxisTest extends FlatSpec {
   "FollowingAxis" should "select all nodes following in the document" in {
     // given
     val root =
-      <root><a><aa/></a><b><bb1><bbb/></bb1><bb2><bbb/></bb2></b><c><cc/></c></root>
+      <root>
+        <a>
+          <aa/>
+        </a> <b>
+        <bb1>
+          <bbb/>
+        </bb1> <bb2>
+          <bbb/>
+        </bb2>
+      </b> <c>
+        <cc/>
+      </c>
+      </root>
 
     val b = (root \ "b").head
     val bb1 = (b \ "bb1").head
@@ -255,7 +267,20 @@ class AxisTest extends FlatSpec {
   "PrecedingAxis" should "select all nodes preceding in the document" in {
     // given
     val root =
-      <root><a><aa/><ab/></a><b><bb1><bbb/></bb1><bb2><bbb/></bb2></b><c><cc/></c></root>
+      <root>
+        <a>
+          <aa/>
+          <ab/>
+        </a> <b>
+        <bb1>
+          <bbb/>
+        </bb1> <bb2>
+          <bbb/>
+        </bb2>
+      </b> <c>
+        <cc/>
+      </c>
+      </root>
 
     val a = (root \ "a").head
     val aa = (a \ "aa").head
@@ -274,6 +299,14 @@ class AxisTest extends FlatSpec {
 
   it should "return its name from toString" in {
     assert(PrecedingAxis.toString === "PrecedingAxis")
+  }
+
+  "AttributeAxis" should "return its name from toString" in {
+    assert(AttributeAxis.toString === "AttributeAxis")
+  }
+
+  "NamespaceAxis" should "return its name from toString" in {
+    assert(NamespaceAxis.toString === "NamespaceAxis")
   }
 
 }
