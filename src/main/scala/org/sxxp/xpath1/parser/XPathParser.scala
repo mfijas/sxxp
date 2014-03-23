@@ -102,18 +102,18 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
       }
 
   def axisName: Parser[Axis] =
-    "ancestor" ^^^ AncestorAxis |
-      "ancestor-or-self" ^^^ AncestorOrSelfAxis |
+    "ancestor-or-self" ^^^ AncestorOrSelfAxis |
+      "ancestor" ^^^ AncestorAxis |
       "attribute" ^^^ AttributeAxis |
       "child" ^^^ ChildAxis |
-      "descendant" ^^^ DescendantAxis |
       "descendant-or-self" ^^^ DescendantOrSelfAxis |
-      "following" ^^^ FollowingAxis |
+      "descendant" ^^^ DescendantAxis |
       "following-sibling" ^^^ FollowingSiblingAxis |
+      "following" ^^^ FollowingAxis |
       "namespace" ^^^ NamespaceAxis |
       "parent" ^^^ ParentAxis |
-      "preceding" ^^^ PrecedingAxis |
       "preceding-sibling" ^^^ PrecedingSiblingAxis |
+      "preceding" ^^^ PrecedingAxis |
       "self" ^^^ SelfAxis
 
   /* | "processing-instruction("~literal~")" */
@@ -276,7 +276,6 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
   // exprWhitespace
 
   // http://www.w3.org/TR/REC-xml/#NT-Name
-  // TODO change to match the spec
   def name: Parser[String] = nameStartChar ~ (nameChar *) ^^ {
     case startChar ~ chars => startChar + chars.mkString
   }
@@ -311,6 +310,5 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
 
   // http://www.w3.org/TR/REC-xml-names/#NT-QName
   def qname: Parser[QName] = prefixedName | unprefixedName
-
 
 }

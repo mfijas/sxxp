@@ -18,10 +18,22 @@ package org.sxxp.xpath1.parser
 
 import org.scalatest.FlatSpec
 import org.sxxp.xpath1.parser.expression._
-import org.sxxp.xpath1.parser.step.{ParentNodeStep, CurNodeStep, AbbreviatedNodeStep, NodeStep}
-import org.sxxp.xpath1.parser.nodetest.{NameNodeTest, NodeTest}
-import org.sxxp.xpath1.parser.path.{AbsoluteLocationPath, AbbreviatedAbsoluteLocationPath, RelativeLocationPath}
-import org.sxxp.xpath1.parser.axis.ChildAxis
+import org.sxxp.xpath1.parser.step.{ParentNodeStep, CurNodeStep}
+import org.sxxp.xpath1.parser.nodetest.NodeTest
+import org.sxxp.xpath1.parser.path.{AbsoluteLocationPath, AbbreviatedAbsoluteLocationPath}
+import org.sxxp.xpath1.parser.axis._
+import org.sxxp.xpath1.parser.expression.PathExpression
+import org.sxxp.xpath1.parser.expression.AbbreviatedPathExpression
+import org.sxxp.xpath1.parser.expression.LiteralExpression
+import org.sxxp.xpath1.parser.nodetest.NameNodeTest
+import org.sxxp.xpath1.parser.expression.FunctionCallExpression
+import org.sxxp.xpath1.parser.path.RelativeLocationPath
+import org.sxxp.xpath1.parser.expression.EqExpression
+import org.sxxp.xpath1.parser.step.NodeStep
+import org.sxxp.xpath1.parser.expression.LocationPathExpression
+import org.sxxp.xpath1.parser.expression.FilterExpression
+import org.sxxp.xpath1.parser.expression.NumberExpression
+import org.sxxp.xpath1.parser.step.AbbreviatedNodeStep
 
 
 class XPathParserTests extends FlatSpec {
@@ -191,6 +203,71 @@ class XPathParserTests extends FlatSpec {
   it should "parse name containing hyphen 'test-node'" in {
     verifyPathExprParseResult("test-node",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("test-node")), List())))))
+  }
+
+  it should "parse 'ancestor' axis" in {
+    verifyPathExprParseResult("ancestor::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(AncestorAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'ancestor-or-self' axis" in {
+    verifyPathExprParseResult("ancestor-or-self::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(AncestorOrSelfAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'attribute' axis" in {
+    verifyPathExprParseResult("attribute::attribute",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(AttributeAxis, NameNodeTest(QName("attribute")), List())))))
+  }
+
+  it should "parse 'child' axis" in {
+    verifyPathExprParseResult("child::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'descendant' axis" in {
+    verifyPathExprParseResult("descendant::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(DescendantAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'descendant-or-self' axis" in {
+    verifyPathExprParseResult("descendant-or-self::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(DescendantOrSelfAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'following' axis" in {
+    verifyPathExprParseResult("following::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(FollowingAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'following-sibling' axis" in {
+    verifyPathExprParseResult("following-sibling::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(FollowingSiblingAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'namespace' axis" in {
+    verifyPathExprParseResult("namespace::*",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(NamespaceAxis, NameNodeTest(QName("*")), List())))))
+  }
+
+  it should "parse 'parent' axis" in {
+    verifyPathExprParseResult("parent::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(ParentAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'preceding' axis" in {
+    verifyPathExprParseResult("preceding::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(PrecedingAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'preceding-sibling' axis" in {
+    verifyPathExprParseResult("preceding-sibling::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(PrecedingSiblingAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse 'self' axis" in {
+    verifyPathExprParseResult("self::element",
+      LocationPathExpression(RelativeLocationPath(List(NodeStep(SelfAxis, NameNodeTest(QName("element")), List())))))
   }
 
 }

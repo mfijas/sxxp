@@ -24,16 +24,22 @@ abstract class Axis {
 object AncestorAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors): Stream[NodeWithAncestors] =
     nodeWithAncestors.parent.map(p => p #:: AncestorAxis(p)).getOrElse(Stream.empty)
+
+  override def toString = "AncestorAxis"
 }
 
 object AncestorOrSelfAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) =
     nodeWithAncestors #:: AncestorAxis(nodeWithAncestors)
+
+  override def toString = "AncestorOrSelfAxis"
 }
 
 object AttributeAxis extends Axis {
   // attributes are not nodes in Scala XML :(
   override def apply(nodeWithAncestors: NodeWithAncestors) = ???
+
+  override def toString = "AttributeAxis"
 }
 
 object ChildAxis extends Axis {
@@ -56,16 +62,22 @@ object DescendantAxis extends Axis {
         childWithParent #:: DescendantAxis(childWithParent)
     }
   }
+
+  override def toString = "DescendantAxis"
 }
 
 object DescendantOrSelfAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) =
     nodeWithAncestors #:: DescendantAxis(nodeWithAncestors)
+
+  override def toString = "DescendantOrSelfAxis"
 }
 
 object FollowingAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) =
     AncestorOrSelfAxis(nodeWithAncestors).flatMap(n => FollowingSiblingAxis(n).flatMap(n => DescendantOrSelfAxis(n)))
+
+  override def toString = "FollowingAxis"
 }
 
 object FollowingSiblingAxis extends Axis {
@@ -77,16 +89,22 @@ object FollowingSiblingAxis extends Axis {
       parent.child.drop(nodeIndex + 1).toStream.map(n => NodeWithAncestors(n, parents))
     } else Stream.empty
   }
+
+  override def toString = "FollowingSiblingAxis"
 }
 
 // not as easy and not that important at the moment
 object NamespaceAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) = ???
+
+  override def toString = "NamespaceAxis"
 }
 
 object ParentAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) =
     nodeWithAncestors.parent.toSeq
+
+  override def toString = "ParentAxis"
 }
 
 object PrecedingAxis extends Axis {
@@ -94,6 +112,8 @@ object PrecedingAxis extends Axis {
     // reverse is inefficient because it realizes whole stream -- can we do better?
     AncestorOrSelfAxis(nodeWithAncestors).reverse.flatMap(n => PrecedingSiblingAxis(n).flatMap(n => DescendantOrSelfAxis(n)))
   }
+
+  override def toString = "PrecedingAxis"
 }
 
 object PrecedingSiblingAxis extends Axis {
@@ -105,8 +125,12 @@ object PrecedingSiblingAxis extends Axis {
       parent.child.take(nodeIndex).reverse.toStream.map(n => NodeWithAncestors(n, parents))
     } else Stream.empty
   }
+
+  override def toString = "PrecedingSiblingAxis"
 }
 
 object SelfAxis extends Axis {
   override def apply(node: NodeWithAncestors) = Seq(node)
+
+  override def toString = "SelfAxis"
 }
