@@ -54,7 +54,8 @@ class XPathParserTests extends FlatSpec {
 
   def verifyNodeTestParseResult(input: String, expected: NodeTest) = verifyParseResult(parser.nodeTest, input, expected)
 
-  def verifyPathExprParseResult(input: String, expected: Expression) = verifyParseResult(parser.pathExpr, input, expected)
+  def verifyUnionExprParseResult(input: String, expected: Expression) =
+    verifyParseResult(parser.unionExpr, input, expected)
 
 
   "nameTest" should "parse non-qualified name" in {
@@ -78,7 +79,7 @@ class XPathParserTests extends FlatSpec {
   }
 
   "pathExpr" should "parse a" in {
-    verifyPathExprParseResult("a",
+    verifyUnionExprParseResult("a",
       LocationPathExpression(
         RelativeLocationPath(
           List(
@@ -86,7 +87,7 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse a/b" in {
-    verifyPathExprParseResult("a/b",
+    verifyUnionExprParseResult("a/b",
       LocationPathExpression(
         RelativeLocationPath(
           List(
@@ -95,7 +96,7 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse a//b" in {
-    verifyPathExprParseResult("a//b",
+    verifyUnionExprParseResult("a//b",
       LocationPathExpression(
         RelativeLocationPath(
           List(
@@ -105,7 +106,7 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse /a/b" in {
-    verifyPathExprParseResult("/a/b",
+    verifyUnionExprParseResult("/a/b",
       LocationPathExpression(
         AbsoluteLocationPath(
           List(
@@ -114,7 +115,7 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse //a/b" in {
-    verifyPathExprParseResult("//a/b",
+    verifyUnionExprParseResult("//a/b",
       LocationPathExpression(
         AbbreviatedAbsoluteLocationPath(
           List(
@@ -123,7 +124,7 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse a[1]" in {
-    verifyPathExprParseResult("a[1]",
+    verifyUnionExprParseResult("a[1]",
       LocationPathExpression(
         RelativeLocationPath(
           List(
@@ -131,21 +132,21 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse ." in {
-    verifyPathExprParseResult(".",
+    verifyUnionExprParseResult(".",
       LocationPathExpression(
         RelativeLocationPath(
           List(CurNodeStep))))
   }
 
   it should "parse .." in {
-    verifyPathExprParseResult("..",
+    verifyUnionExprParseResult("..",
       LocationPathExpression(
         RelativeLocationPath(
           List(ParentNodeStep))))
   }
 
   it should "parse a[1]/b[. = 'abcd']" in {
-    verifyPathExprParseResult("a[1]/b[.='abcd']",
+    verifyUnionExprParseResult("a[1]/b[.='abcd']",
       LocationPathExpression(
         RelativeLocationPath(
           List(
@@ -155,12 +156,12 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse a//." in {
-    verifyPathExprParseResult("a//.",
+    verifyUnionExprParseResult("a//.",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List()), AbbreviatedNodeStep(CurNodeStep)))))
   }
 
   it should "parse (//aa)[1]" in {
-    verifyPathExprParseResult("(//aa)[1]",
+    verifyUnionExprParseResult("(//aa)[1]",
       FilterExpression(
         LocationPathExpression(
           AbbreviatedAbsoluteLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("aa")), List())))
@@ -168,12 +169,12 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse /*" in {
-    verifyPathExprParseResult("/*",
+    verifyUnionExprParseResult("/*",
       LocationPathExpression(AbsoluteLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("*")), List())))))
   }
 
   it should "parse /a[. = myFun(1,//somePath)]" in {
-    verifyPathExprParseResult("/a[. = myFun(1,//somePath)]",
+    verifyUnionExprParseResult("/a[. = myFun(1,//somePath)]",
       LocationPathExpression(
         AbsoluteLocationPath(
           List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List(
@@ -187,87 +188,94 @@ class XPathParserTests extends FlatSpec {
   }
 
   it should "parse (a)/b" in {
-    verifyPathExprParseResult("(a)/b",
+    verifyUnionExprParseResult("(a)/b",
       PathExpression(
         LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List())))),
         RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))))
   }
 
   it should "parse (a)//b" in {
-    verifyPathExprParseResult("(a)//b",
+    verifyUnionExprParseResult("(a)//b",
       AbbreviatedPathExpression(
         LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List())))),
         RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("b")), List())))))
   }
 
   it should "parse name containing hyphen 'test-node'" in {
-    verifyPathExprParseResult("test-node",
+    verifyUnionExprParseResult("test-node",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("test-node")), List())))))
   }
 
   it should "parse 'ancestor' axis" in {
-    verifyPathExprParseResult("ancestor::element",
+    verifyUnionExprParseResult("ancestor::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(AncestorAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'ancestor-or-self' axis" in {
-    verifyPathExprParseResult("ancestor-or-self::element",
+    verifyUnionExprParseResult("ancestor-or-self::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(AncestorOrSelfAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'attribute' axis" in {
-    verifyPathExprParseResult("attribute::attribute",
+    verifyUnionExprParseResult("attribute::attribute",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(AttributeAxis, NameNodeTest(QName("attribute")), List())))))
   }
 
   it should "parse 'child' axis" in {
-    verifyPathExprParseResult("child::element",
+    verifyUnionExprParseResult("child::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'descendant' axis" in {
-    verifyPathExprParseResult("descendant::element",
+    verifyUnionExprParseResult("descendant::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(DescendantAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'descendant-or-self' axis" in {
-    verifyPathExprParseResult("descendant-or-self::element",
+    verifyUnionExprParseResult("descendant-or-self::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(DescendantOrSelfAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'following' axis" in {
-    verifyPathExprParseResult("following::element",
+    verifyUnionExprParseResult("following::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(FollowingAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'following-sibling' axis" in {
-    verifyPathExprParseResult("following-sibling::element",
+    verifyUnionExprParseResult("following-sibling::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(FollowingSiblingAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'namespace' axis" in {
-    verifyPathExprParseResult("namespace::*",
+    verifyUnionExprParseResult("namespace::*",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(NamespaceAxis, NameNodeTest(QName("*")), List())))))
   }
 
   it should "parse 'parent' axis" in {
-    verifyPathExprParseResult("parent::element",
+    verifyUnionExprParseResult("parent::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(ParentAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'preceding' axis" in {
-    verifyPathExprParseResult("preceding::element",
+    verifyUnionExprParseResult("preceding::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(PrecedingAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'preceding-sibling' axis" in {
-    verifyPathExprParseResult("preceding-sibling::element",
+    verifyUnionExprParseResult("preceding-sibling::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(PrecedingSiblingAxis, NameNodeTest(QName("element")), List())))))
   }
 
   it should "parse 'self' axis" in {
-    verifyPathExprParseResult("self::element",
+    verifyUnionExprParseResult("self::element",
       LocationPathExpression(RelativeLocationPath(List(NodeStep(SelfAxis, NameNodeTest(QName("element")), List())))))
+  }
+
+  it should "parse union expression" in {
+    verifyUnionExprParseResult("a|b",
+      UnionExpression(
+        LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("a")), List())))),
+        LocationPathExpression(RelativeLocationPath(List(NodeStep(ChildAxis, NameNodeTest(QName("b")), List()))))))
   }
 
 }

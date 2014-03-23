@@ -164,8 +164,8 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
     expr
 
   lazy val unionExpr: PackratParser[Expression] =
-    pathExpr |
-      unionExpr ~ "|" ~ pathExpr ^^ {
+    log(pathExpr)("pathExpr") |||
+      log(unionExpr ~ "|" ~ pathExpr)("unionExpr ~ \"|\" ~ pathExpr") ^^ {
         case e1 ~ _ ~ e2 => UnionExpression(e1, e2)
       }
 
