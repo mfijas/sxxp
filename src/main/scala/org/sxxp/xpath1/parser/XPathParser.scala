@@ -80,7 +80,7 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
     } |||
       log(abbreviatedAbsoluteLocationPath)("abbreviatedAbsoluteLocationPath")
 
-  lazy val relativeLocationPath: PackratParser[LocationPath] =
+  lazy val relativeLocationPath: PackratParser[RelativeLocationPath] =
     log(step)("step") ^^ (s => RelativeLocationPath(List(s))) |||
       log(relativeLocationPath ~ "/" ~ step)("relativeLocationPath ~ \"/\" ~ step") ^^ {
         case path ~ _ ~ step => path :+ step
@@ -128,7 +128,7 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
   lazy val abbreviatedAbsoluteLocationPath: PackratParser[LocationPath] =
     log("//" ~> relativeLocationPath)("\"//\" ~> relativeLocationPath") ^^ (AbbreviatedAbsoluteLocationPath(_))
 
-  lazy val abbreviatedRelativeLocationPath: PackratParser[LocationPath] =
+  lazy val abbreviatedRelativeLocationPath: PackratParser[RelativeLocationPath] =
     log(relativeLocationPath ~ "//" ~ step)("relativeLocationPath ~ \"//\" ~ step") ^^ {
       case path ~ _ ~ step => path :+ AbbreviatedNodeStep(step)
     }

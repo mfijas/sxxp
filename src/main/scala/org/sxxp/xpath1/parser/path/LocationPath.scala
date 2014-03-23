@@ -23,7 +23,5 @@ import org.sxxp.xpath1.parser.axis.NodeWithAncestors
 trait LocationPath {
   val steps: List[Step]
 
-  def :+(step: Step): LocationPath
-
   def select(currentNode: NodeWithAncestors, context: XPathContext): Seq[NodeWithAncestors]
 }

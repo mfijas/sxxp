@@ -25,7 +25,6 @@ import org.sxxp.xpath1.parser.axis.{DescendantOrSelfAxis, NodeWithAncestors}
  * Location path starting with "//"
  */
 case class AbbreviatedAbsoluteLocationPath(steps: List[Step]) extends LocationPath with Logging {
-  override def :+(step: Step): LocationPath = AbbreviatedAbsoluteLocationPath(steps :+ step)
 
   override def select(currentNode: NodeWithAncestors, context: XPathContext) = {
     var curNodeSeq: Seq[NodeWithAncestors] = DescendantOrSelfAxis(context.rootNode)

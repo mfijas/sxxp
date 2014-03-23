@@ -27,8 +27,6 @@ import org.sxxp.xpath1.parser.axis.NodeWithAncestors
  * Location path starting with "/"
  */
 case class AbsoluteLocationPath(steps: List[Step]) extends LocationPath with Logging {
-  override def :+(step: Step): LocationPath = AbsoluteLocationPath(steps :+ step)
-
   // TODO not so nice, think about doing it better
   private def dummyRoot(child: Node) =
     Elem(null, "dummy-root", scala.xml.Null, TopScope, false, child)
