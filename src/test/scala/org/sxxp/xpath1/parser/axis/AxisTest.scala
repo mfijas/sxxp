@@ -39,6 +39,10 @@ class AxisTest extends FlatSpec {
     }
   }
 
+  it should "return its name from toString" in {
+    assert(ChildAxis.toString === "ChildAxis")
+  }
+
   "DescendantAxis" should "select all descendant nodes" in {
     // given
     val root =
@@ -69,6 +73,10 @@ class AxisTest extends FlatSpec {
     assert(descendant1.ancestors === List(a, root))
   }
 
+  it should "return its name from toString" in {
+    assert(DescendantAxis.toString === "DescendantAxis")
+  }
+
   "DescendantOrSelfAxis" should "select node and all descendant nodes" in {
     // given
     val xml =
@@ -87,6 +95,10 @@ class AxisTest extends FlatSpec {
 
     // then
     assert(extractNodes(axis) === xml.descendant_or_self)
+  }
+
+  it should "return its name from toString" in {
+    assert(DescendantOrSelfAxis.toString === "DescendantOrSelfAxis")
   }
 
   "ParentAxis" should "select parent node" in {
@@ -110,6 +122,10 @@ class AxisTest extends FlatSpec {
     assert(ancestors === List(root))
   }
 
+  it should "return its name from toString" in {
+    assert(ParentAxis.toString === "ParentAxis")
+  }
+
   "AncestorAxis" should "select ancestors in order" in {
     // given
     val root =
@@ -126,6 +142,10 @@ class AxisTest extends FlatSpec {
 
     // then
     assert(extractNodes(axis) === List(a, root))
+  }
+
+  it should "return its name from toString" in {
+    assert(AncestorAxis.toString === "AncestorAxis")
   }
 
   "AncestorOrSelfAxis" should "select self and ancestors in order" in {
@@ -146,6 +166,10 @@ class AxisTest extends FlatSpec {
     assert(extractNodes(axis) === List(b, a, root))
   }
 
+  it should "return its name from toString" in {
+    assert(AncestorOrSelfAxis.toString === "AncestorOrSelfAxis")
+  }
+
   "SelfAxis" should "select self" in {
     // given
     val elem = <elem/>
@@ -155,6 +179,10 @@ class AxisTest extends FlatSpec {
 
     // then
     assert(axis.head.node === elem)
+  }
+
+  it should "return its name from toString" in {
+    assert(SelfAxis.toString === "SelfAxis")
   }
 
   "FollowingSiblingAxis" should "select all following siblings" in {
@@ -173,6 +201,10 @@ class AxisTest extends FlatSpec {
 
     // then
     assert(extractNodes(axis) === root.child.drop(4))
+  }
+
+  it should "return its name from toString" in {
+    assert(FollowingSiblingAxis.toString === "FollowingSiblingAxis")
   }
 
   "FollowingAxis" should "select all nodes following in the document" in {
@@ -194,6 +226,10 @@ class AxisTest extends FlatSpec {
     assert(extractNodes(axis).toList === List(bb2, bbb, c, cc))
   }
 
+  it should "return its name from toString" in {
+    assert(FollowingAxis.toString === "FollowingAxis")
+  }
+
   "PrecedingSiblingAxis" should "select all preceding siblings" in {
     // given
     val root =
@@ -210,6 +246,10 @@ class AxisTest extends FlatSpec {
 
     // then
     assert(extractNodes(axis) === root.child.take(5).reverse) // including whitespace nodes
+  }
+
+  it should "return its name from toString" in {
+    assert(PrecedingSiblingAxis.toString === "PrecedingSiblingAxis")
   }
 
   "PrecedingAxis" should "select all nodes preceding in the document" in {
@@ -231,4 +271,9 @@ class AxisTest extends FlatSpec {
     // then
     assert(extractNodes(axis).toList === List(a, aa, ab, bb1, bbb))
   }
+
+  it should "return its name from toString" in {
+    assert(PrecedingAxis.toString === "PrecedingAxis")
+  }
+
 }
