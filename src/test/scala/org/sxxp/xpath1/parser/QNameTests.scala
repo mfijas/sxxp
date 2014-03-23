@@ -35,4 +35,32 @@ class QNameTests extends FlatSpec {
     assert(fullName === "{" + ns + "}" + localPart)
   }
 
+  "QName.toString" should "return three argument constructor notation for fully qualified names" in {
+
+    // given
+    val ns = "http://schemas.sxxp.org/s"
+    val prefix = "s"
+    val localPart = "someName"
+    val qname = QName(ns, prefix, localPart)
+
+    // when
+    val string = qname.toString
+
+    // then
+    assert(string === s"QName($ns,$prefix,$localPart)")
+  }
+
+  "QName.toString" should "return three argument constructor notation for name in default namespace" in {
+
+    // given
+    val localPart = "someName"
+    val qname = QName(localPart)
+
+    // when
+    val string = qname.toString
+
+    // then
+    assert(string === s"QName($localPart)")
+  }
+
 }
