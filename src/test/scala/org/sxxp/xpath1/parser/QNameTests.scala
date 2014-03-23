@@ -47,10 +47,10 @@ class QNameTests extends FlatSpec {
     val string = qname.toString
 
     // then
-    assert(string === s"QName($ns,$prefix,$localPart)")
+    assert(string === s"""QName("$ns","$prefix","$localPart")""")
   }
 
-  "QName.toString" should "return three argument constructor notation for name in default namespace" in {
+  it should "return three argument constructor notation for name in default namespace" in {
 
     // given
     val localPart = "someName"
@@ -60,7 +60,7 @@ class QNameTests extends FlatSpec {
     val string = qname.toString
 
     // then
-    assert(string === s"QName($localPart)")
+    assert(string === s"""QName("$localPart")""")
   }
 
 }
