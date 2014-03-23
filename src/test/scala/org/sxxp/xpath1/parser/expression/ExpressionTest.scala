@@ -41,6 +41,27 @@ class ExpressionTest extends FlatSpec {
     assert(FalseExp.evaluate(null, null) === False)
   }
 
+  it should "throw exception when function called with wrong number of arguments" in {
+    // given
+    val argument = LiteralExpression("literalString")
+    val funExpr = FunctionCallExpression(QName("true"), List(argument))
+
+    // when
+    intercept[IllegalArgumentException] {
+      funExpr.evaluate(null, null)
+    }
+  }
+
+ it should "throw exception when unknown function name was given" in {
+    // given
+    val funExpr = FunctionCallExpression(QName("someNonexistentFunction"), List())
+
+    // when
+    intercept[IllegalStateException] {
+      funExpr.evaluate(null, null)
+    }
+  }
+
   "OrExpression" should "have OR logic" in {
     assert(OrExpression(FalseExp, FalseExp).evaluate(null, null) === False)
     assert(OrExpression(TrueExp, FalseExp).evaluate(null, null) === True)
