@@ -47,19 +47,25 @@ class ExpressionTest extends FlatSpec {
     val funExpr = FunctionCallExpression(QName("true"), List(argument))
 
     // when
-    intercept[IllegalArgumentException] {
+    val exception = intercept[IllegalArgumentException] {
       funExpr.evaluate(null, null)
     }
+
+    // then
+    assert(exception.getMessage === "Function true() expects 0 argument(s), found 1!")
   }
 
- it should "throw exception when unknown function name was given" in {
+  it should "throw exception when unknown function name was given" in {
     // given
-    val funExpr = FunctionCallExpression(QName("someNonexistentFunction"), List())
+    val funExpr = FunctionCallExpression(QName("http://schemas.sxxp.org/s", "s", "nonexistentFunction"), List())
 
     // when
-    intercept[IllegalStateException] {
+    val exception = intercept[IllegalStateException] {
       funExpr.evaluate(null, null)
     }
+
+    // then
+    assert(exception.getMessage === "Unknown function {http://schemas.sxxp.org/s}nonexistentFunction()!")
   }
 
   "OrExpression" should "have OR logic" in {

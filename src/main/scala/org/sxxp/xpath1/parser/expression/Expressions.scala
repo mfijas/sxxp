@@ -127,7 +127,7 @@ case class FunctionCallExpression(functionName: QName, arguments: List[Expressio
 
     def assertArity(arity: Int) =
       if (arity != arguments.length)
-        throw new IllegalArgumentException(s"Function $functionName expects $arity argument(s), found ${arguments.length}!")
+        throw new IllegalArgumentException(s"Function ${functionName.getFullName}() expects $arity argument(s), found ${arguments.length}!")
 
     def invokeFunction0(f: ParameterlessFunction) = {
       assertArity(0)
@@ -145,7 +145,7 @@ case class FunctionCallExpression(functionName: QName, arguments: List[Expressio
       case StringFunction.QNAME => invokeFunction1(StringFunction)
       case TrueFunction.QNAME => invokeFunction0(TrueFunction)
       case FalseFunction.QNAME => invokeFunction0(FalseFunction)
-      case _ => throw new IllegalStateException(s"Unknown function ${functionName.getFullName}!")
+      case _ => throw new IllegalStateException(s"Unknown function ${functionName.getFullName}()!")
     }
   }
 }
