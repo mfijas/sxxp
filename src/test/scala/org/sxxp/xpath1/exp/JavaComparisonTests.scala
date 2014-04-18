@@ -38,7 +38,7 @@ class JavaComparisonTests extends FunSuite {
     XML.load(getClass.getClassLoader.getResourceAsStream(fileName))
 
   def evaluate(node: Node, path: String) =
-    Evaluator.evaluate(node, parser.parsePathExpression(path)) match {
+    Evaluator.evaluate(node, parser.parseExpression(path)) match {
       case xNodeSeq: XNodeSeq => xNodeSeq.toNodeSeq
       case _ => fail("XNodeSeq expected when evaluating PathExpression")
     }

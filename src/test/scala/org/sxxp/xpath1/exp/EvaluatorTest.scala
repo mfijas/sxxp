@@ -46,7 +46,7 @@ class EvaluatorTest extends FlatSpec {
   val parser: XPathParser = new XPathParser()
 
   def evaluate(node: Node, path: String) =
-    Evaluator.evaluate(node, parser.parsePathExpression(path)) match {
+    Evaluator.evaluate(node, parser.parseExpression(path)) match {
       case xNodeSeq: XNodeSeq => xNodeSeq.toNodeSeq
       case _ => fail("XNodeSeq expected when evaluating PathExpression")
     }
@@ -139,5 +139,14 @@ class EvaluatorTest extends FlatSpec {
     assert(result === expected)
   }
 
+  it should "select 'a|b'" in {
+    // given
+    val path = "a|b"
+    val expected = xml \ "a|b"
+    // when
+    val result = evaluate(xml, path)
+    // then
+    assert(result === expected)
+  }
 
 }

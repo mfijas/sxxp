@@ -67,7 +67,7 @@ class XPathParser extends JavaTokenParsers with PackratParsers with Logging {
       r
   }
 
-  def parsePathExpression(input: String) = parseAll(pathExpr, input).get
+  def parseExpression(input: String) = parseAll(expr, input).get
 
   def locationPath: Parser[LocationPath] =
     log(relativeLocationPath)("relativeLocationPath") |||

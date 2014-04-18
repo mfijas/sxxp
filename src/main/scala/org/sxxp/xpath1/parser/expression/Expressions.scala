@@ -87,7 +87,10 @@ case class MinusExpression(exp: Expression) extends Expression {
     XNumber(-exp.evaluate(node, context).asXNumber.value)
 }
 
-case class UnionExpression(left: Expression, right: Expression) extends Expression
+case class UnionExpression(left: Expression, right: Expression) extends Expression{
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
+    ???
+}
 
 case class LiteralExpression(value: String) extends Expression {
   override def evaluate(node: NodeWithAncestors, context: XPathContext): XObject = XString(value)
@@ -99,6 +102,7 @@ case class NumberExpression(value: Double) extends Expression {
 
 case class FilterExpression(expr: Expression, predicate: Predicate) extends Expression {
   override def evaluate(node: NodeWithAncestors, context: XPathContext): XObject = {
+    // TODO verify efficiency
     XNodeSeq(expr.evaluate(node, context).asXNodeSeq.value.zipWithIndex.filter {
       case (n, index) =>
         predicate.evaluate(n, index + 1, context)
