@@ -1,7 +1,7 @@
 package org.sxxp.xpath1.parser.types
 
 import org.scalatest.FlatSpec
-import org.sxxp.xpath1.parser.axis.NodeWithAncestors
+import org.sxxp.xpath1.parser.axis.{NodePath, NodeWithAncestors}
 
 class NodeWithAncestorsSeqTest extends FlatSpec {
 
@@ -14,9 +14,9 @@ class NodeWithAncestorsSeqTest extends FlatSpec {
         <b>bbb</b>
         <c>ccc</c>
       </root>
-    val a = NodeWithAncestors((xml \ "a").head, List(xml))
-    val b = NodeWithAncestors((xml \ "b").head, List(xml))
-    val c = NodeWithAncestors((xml \ "c").head, List(xml))
+    val a = NodeWithAncestors((xml \ "a").head, List(xml), NodePath(0))
+    val b = NodeWithAncestors((xml \ "b").head, List(xml), NodePath(1))
+    val c = NodeWithAncestors((xml \ "c").head, List(xml), NodePath(2))
     val seq = Seq(a, b, c)
 
     // when

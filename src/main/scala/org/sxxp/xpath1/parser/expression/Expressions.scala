@@ -87,9 +87,14 @@ case class MinusExpression(exp: Expression) extends Expression {
     XNumber(-exp.evaluate(node, context).asXNumber.value)
 }
 
-case class UnionExpression(left: Expression, right: Expression) extends Expression{
-  override def evaluate(node: NodeWithAncestors, context: XPathContext) =
-    ???
+case class UnionExpression(left: Expression, right: Expression) extends Expression {
+  override def evaluate(node: NodeWithAncestors, context: XPathContext) = {
+    // TODO check what about reverse order
+    val leftNodeSeq = left.evaluate(node, context).asXNodeSeq
+    val rightNodeSeq = right.evaluate(node, context).asXNodeSeq
+    XNodeSeq((leftNodeSeq.value ++ rightNodeSeq.value).sorted)
+  }
+
 }
 
 case class LiteralExpression(value: String) extends Expression {

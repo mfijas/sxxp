@@ -18,6 +18,7 @@ package org.sxxp.xpath1.parser.types
 
 import org.scalatest.FlatSpec
 import org.sxxp.xpath1.parser.axis.NodeWithAncestors
+import org.sxxp.xpath1.parser.util.NodeWithAncestorsUtil.flatNodeSeqToXNodeSeq
 
 class XObjectComparatorTests extends FlatSpec {
 
@@ -31,7 +32,7 @@ class XObjectComparatorTests extends FlatSpec {
       <a>iop</a>
     </x1>
     val aNodes = leftXml \ "a"
-    val left = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(leftXml))))
+    val left = flatNodeSeqToXNodeSeq(aNodes, leftXml)
 
     val rightXml = <x2>
       <a>qwe</a>
@@ -39,9 +40,8 @@ class XObjectComparatorTests extends FlatSpec {
       <a>abc</a>
     </x2>
     val rightANodes = rightXml \ "a"
-    val right = XNodeSeq(
-      rightANodes.map(NodeWithAncestors(_, List(rightXml))))
-    val singleNode = XNodeSeq(Seq(NodeWithAncestors(<a>abc</a>, List.empty)))
+    val right = flatNodeSeqToXNodeSeq(rightANodes, rightXml)
+    val singleNode = XNodeSeq(Seq(NodeWithAncestors.rootNode(<a>abc</a>)))
 
     // then
     assert(isEqual(left, right))
@@ -58,7 +58,7 @@ class XObjectComparatorTests extends FlatSpec {
       <a>345</a>
     </x1>
     val aNodes = xml \ "a"
-    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
+    val nodeSeq = flatNodeSeqToXNodeSeq(aNodes, xml)
     val number = XNumber(234)
     val otherNumber = XNumber(111)
 
@@ -77,7 +77,7 @@ class XObjectComparatorTests extends FlatSpec {
     </x1>
     val aNodes = xml \ "a"
     // given
-    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
+    val nodeSeq = flatNodeSeqToXNodeSeq(aNodes, xml)
     val string = XString("bcd")
     val otherString = XString("aaa")
 
@@ -96,44 +96,44 @@ class XObjectComparatorTests extends FlatSpec {
       <a>efg</a>
     </x1>
     val aNodes = xml \ "a"
-    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
+    val nodeSeq = flatNodeSeqToXNodeSeq(aNodes, xml)
     val emptyNodeSeq = XNodeSeq(Seq.empty)
-    val xtrue = XBoolean(true)
-    val xfalse = XBoolean(false)
+    val xTrue = XBoolean(true)
+    val xFalse = XBoolean(false)
 
     // then
-    assert(isEqual(nodeSeq, xtrue) === true)
-    assert(isEqual(nodeSeq, xfalse) === false)
-    assert(isEqual(emptyNodeSeq, xfalse) === true)
-    assert(isEqual(emptyNodeSeq, xtrue) === false)
+    assert(isEqual(nodeSeq, xTrue) === true)
+    assert(isEqual(nodeSeq, xFalse) === false)
+    assert(isEqual(emptyNodeSeq, xFalse) === true)
+    assert(isEqual(emptyNodeSeq, xTrue) === false)
 
-    assert(isEqual(xtrue, nodeSeq) === true)
-    assert(isEqual(xfalse, nodeSeq) === false)
-    assert(isEqual(xfalse, emptyNodeSeq) === true)
-    assert(isEqual(xtrue, emptyNodeSeq) === false)
+    assert(isEqual(xTrue, nodeSeq) === true)
+    assert(isEqual(xFalse, nodeSeq) === false)
+    assert(isEqual(xFalse, emptyNodeSeq) === true)
+    assert(isEqual(xTrue, emptyNodeSeq) === false)
   }
 
   it should "compare anything with XBoolean" in {
     // given
-    val xtrue = XBoolean(true)
-    val xfalse = XBoolean(false)
+    val xTrue = XBoolean(true)
+    val xFalse = XBoolean(false)
     val string = XString("aaaa")
     val number = XNumber(333)
 
     // then
-    assert(isEqual(xtrue, xtrue) === true)
-    assert(isEqual(xtrue, string) === true)
-    assert(isEqual(xtrue, number) === true)
+    assert(isEqual(xTrue, xTrue) === true)
+    assert(isEqual(xTrue, string) === true)
+    assert(isEqual(xTrue, number) === true)
 
-    assert(isEqual(string, xtrue) === true)
-    assert(isEqual(number, xtrue) === true)
+    assert(isEqual(string, xTrue) === true)
+    assert(isEqual(number, xTrue) === true)
 
-    assert(isEqual(xtrue, xfalse) === false)
-    assert(isEqual(xfalse, string) === false)
-    assert(isEqual(xfalse, number) === false)
+    assert(isEqual(xTrue, xFalse) === false)
+    assert(isEqual(xFalse, string) === false)
+    assert(isEqual(xFalse, number) === false)
 
-    assert(isEqual(string, xfalse) === false)
-    assert(isEqual(number, xfalse) === false)
+    assert(isEqual(string, xFalse) === false)
+    assert(isEqual(number, xFalse) === false)
   }
 
 }

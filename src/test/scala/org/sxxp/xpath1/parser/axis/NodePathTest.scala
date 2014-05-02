@@ -7,54 +7,54 @@ class NodePathTest extends FlatSpec {
   "NodePath" should "allow creation of root path" in {
 
     // when
-    val nodePath = NodePath.root
+    val nodePath = NodePath.empty
 
     // then
-    assert(nodePath.path === List())
+    assert(nodePath === NodePath())
   }
 
   it should "allow appending path segment to root path" in {
 
     // given
-    val emptyPath = NodePath.root
+    val emptyPath = NodePath.empty
     val childIndex = 3
 
     // when
     val childPath = emptyPath.append(childIndex)
 
     // then
-    assert(childPath.path === List(childIndex))
+    assert(childPath === NodePath(childIndex))
   }
 
   it should "allow appending path segment to non-empty path" in {
     // given
-    val path = new NodePath(Vector(1, 2))
+    val path = NodePath(1, 2)
     val childIndex = 3
 
     // when
     val childPath = path.append(childIndex)
 
     // then
-    assert(childPath.path === List(1, 2, 3))
+    assert(childPath === NodePath(1, 2, 3))
   }
 
   it should "allow obtaining parent path" in {
     // given
-    val path = new NodePath(Vector(1, 2, 3))
+    val path = NodePath(1, 2, 3)
 
     // when
     val parentPath = path.parentPath
 
     // then
-    assert(parentPath.path === List(1, 2))
+    assert(parentPath === NodePath(1, 2))
   }
 
   "NodePath.compareTo" should "compare paths" in {
     // given
-    val p1 = new NodePath(Vector(1))
-    val p12 = new NodePath(Vector(1, 2))
-    val p12b = new NodePath(Vector(1, 2))
-    val p13 = new NodePath(Vector(1, 3))
+    val p1 = NodePath(1)
+    val p12 = NodePath(1, 2)
+    val p12b = NodePath(1, 2)
+    val p13 = NodePath(1, 3)
 
     // then
     assert(p12.compare(p12b) == 0)
@@ -65,10 +65,10 @@ class NodePathTest extends FlatSpec {
 
   "NodePath" should "allow using <, >, != and == operators" in {
     // given
-    val p1 = new NodePath(Vector(1))
-    val p12 = new NodePath(Vector(1, 2))
-    val p12b = new NodePath(Vector(1, 2))
-    val p13 = new NodePath(Vector(1, 3))
+    val p1 = NodePath(1)
+    val p12 = NodePath(1, 2)
+    val p12b = NodePath(1, 2)
+    val p13 = NodePath(1, 3)
 
     // then
     assert(p12 == p12b)

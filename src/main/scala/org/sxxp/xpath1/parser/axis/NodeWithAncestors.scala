@@ -18,9 +18,15 @@ package org.sxxp.xpath1.parser.axis
 
 import scala.xml.Node
 
-case class NodeWithAncestors(node: Node, ancestors: List[Node]) {
+case class NodeWithAncestors(node: Node, ancestors: List[Node], path: NodePath) extends Ordered[NodeWithAncestors] {
   def parent = ancestors match {
-    case head :: tail => Some(NodeWithAncestors(head, tail))
+    case head :: tail => Some(NodeWithAncestors(head, tail, path.parentPath))
     case List() => None
   }
+
+  override def compare(that: NodeWithAncestors) = path.compare(that.path)
+}
+
+object NodeWithAncestors {
+  def rootNode(node: Node) = new NodeWithAncestors(node, List.empty, NodePath.empty)
 }

@@ -31,11 +31,13 @@ class AxisTest extends FlatSpec {
       </root>
 
     // when
-    val axis = ChildAxis(NodeWithAncestors(xml, List.empty))
+    val axis = ChildAxis(NodeWithAncestors.rootNode(xml))
 
     assert(extractNodes(axis) === xml.child)
-    axis.foreach {
-      nwa => assert(nwa.ancestors === List(xml))
+    axis.zipWithIndex.foreach {
+      case (nwa, index) =>
+        assert(nwa.ancestors === List(xml))
+        assert(nwa.path === NodePath(index))
     }
   }
 
@@ -57,7 +59,7 @@ class AxisTest extends FlatSpec {
       </root>
 
     // when
-    val axis = DescendantAxis(NodeWithAncestors(root, List.empty)).toList
+    val axis = DescendantAxis(NodeWithAncestors.rootNode(root))
 
     // then
     assert(extractNodes(axis) === root.descendant)
@@ -66,11 +68,19 @@ class AxisTest extends FlatSpec {
     val a = (root \ "a")(0)
     assert(descendant0.node === a)
     assert(descendant0.ancestors === List(root))
+    assert(descendant0.path === NodePath(1))
 
     val descendant1 = axis(3) // strange indices because of whitespace nodes
     val b = (root \ "a" \ "b")(0)
     assert(descendant1.node === b)
     assert(descendant1.ancestors === List(a, root))
+    assert(descendant1.path === NodePath(1, 1))
+
+    val descendant2 = axis(6) // strange indices because of whitespace nodes
+    val b2 = (root \ "a" \ "b")(1)
+    assert(descendant2.node === b2)
+    assert(descendant2.ancestors === List(a, root))
+    assert(descendant2.path === NodePath(1, 3))
   }
 
   it should "return its name from toString" in {
@@ -91,7 +101,7 @@ class AxisTest extends FlatSpec {
       </root>
 
     // when
-    val axis = DescendantOrSelfAxis(NodeWithAncestors(xml, List.empty))
+    val axis = DescendantOrSelfAxis(NodeWithAncestors.rootNode(xml))
 
     // then
     assert(extractNodes(axis) === xml.descendant_or_self)
@@ -113,13 +123,16 @@ class AxisTest extends FlatSpec {
     val b = (root \\ "b").head
 
     // when
-    val axis = ParentAxis(NodeWithAncestors(b, List(a, root)))
-    val node = axis.head.node
-    val ancestors = axis.head.ancestors
+    val axis = ParentAxis(NodeWithAncestors(b, List(a, root), NodePath(0, 0)))
+    val parent = axis.head
+    val node = parent.node
+    val ancestors = parent.ancestors
+    val path = parent.path
 
     // then
     assert(node === a)
     assert(ancestors === List(root))
+    assert(path === NodePath(0))
   }
 
   it should "return its name from toString" in {
@@ -138,10 +151,12 @@ class AxisTest extends FlatSpec {
     val b = (root \\ "b").head
 
     // when
-    val axis = AncestorAxis(NodeWithAncestors(b, List(a, root)))
+    val axis = AncestorAxis(NodeWithAncestors(b, List(a, root), NodePath(0, 0)))
 
     // then
     assert(extractNodes(axis) === List(a, root))
+    assert(axis(0).path === NodePath(0))
+    assert(axis(1).path === NodePath())
   }
 
   it should "return its name from toString" in {
@@ -150,20 +165,18 @@ class AxisTest extends FlatSpec {
 
   "AncestorOrSelfAxis" should "select self and ancestors in order" in {
     // given
-    val root =
-      <root>
-        <a>
-          <b/>
-        </a>
-      </root>
+    val root = <root><a><b/></a></root>
     val a = (root \ "a").head
     val b = (root \\ "b").head
 
     // when
-    val axis = AncestorOrSelfAxis(NodeWithAncestors(b, List(a, root)))
+    val axis = AncestorOrSelfAxis(NodeWithAncestors(b, List(a, root), NodePath(0, 0)))
 
     // then
     assert(extractNodes(axis) === List(b, a, root))
+    assert(axis(0).path === NodePath(0, 0))
+    assert(axis(1).path === NodePath(0))
+    assert(axis(2).path === NodePath())
   }
 
   it should "return its name from toString" in {
@@ -175,7 +188,7 @@ class AxisTest extends FlatSpec {
     val elem = <elem/>
 
     // when
-    val axis = SelfAxis(NodeWithAncestors(elem, List.empty))
+    val axis = SelfAxis(NodeWithAncestors.rootNode(elem))
 
     // then
     assert(axis.head.node === elem)
@@ -187,20 +200,16 @@ class AxisTest extends FlatSpec {
 
   "FollowingSiblingAxis" should "select all following siblings" in {
     // given
-    val root =
-      <root>
-        <a/>
-        <b/>
-        <c/>
-        <d/>
-      </root>
+    val root = <root><a/><b/><c/><d/></root>
     val b = (root \ "b")(0)
 
     // when
-    val axis = FollowingSiblingAxis(NodeWithAncestors(b, List(root)))
+    val axis = FollowingSiblingAxis(NodeWithAncestors(b, List(root), NodePath(1)))
 
     // then
-    assert(extractNodes(axis) === root.child.drop(4))
+    assert(extractNodes(axis) === root.child.drop(2))
+    assert(axis(0).path === NodePath(2))
+    assert(axis(1).path === NodePath(3))
   }
 
   it should "return its name from toString" in {
@@ -219,10 +228,14 @@ class AxisTest extends FlatSpec {
     val cc = (c \ "cc").head
 
     // when
-    val axis = FollowingAxis(NodeWithAncestors(bb1, List(b, root)))
+    val axis = FollowingAxis(NodeWithAncestors(bb1, List(b, root), NodePath(1, 0)))
 
     // then
     assert(extractNodes(axis).toList === List(bb2, bbb, c, cc))
+    assert(axis(0).path === NodePath(1, 1))
+    assert(axis(1).path === NodePath(1, 1, 0))
+    assert(axis(2).path === NodePath(2))
+    assert(axis(3).path === NodePath(2, 0))
   }
 
   it should "return its name from toString" in {
@@ -231,20 +244,16 @@ class AxisTest extends FlatSpec {
 
   "PrecedingSiblingAxis" should "select all preceding siblings" in {
     // given
-    val root =
-      <root>
-        <a/>
-        <b/>
-        <c/>
-        <d/>
-      </root>
+    val root = <root><a/><b/><c/><d/></root>
     val c = (root \ "c")(0)
 
     // when
-    val axis = PrecedingSiblingAxis(NodeWithAncestors(c, List(root)))
+    val axis = PrecedingSiblingAxis(NodeWithAncestors(c, List(root), NodePath(2)))
 
     // then
-    assert(extractNodes(axis) === root.child.take(5).reverse) // including whitespace nodes
+    assert(extractNodes(axis) === root.child.take(2).reverse)
+    assert(axis(0).path === NodePath(1))
+    assert(axis(1).path === NodePath(0))
   }
 
   it should "return its name from toString" in {
@@ -253,7 +262,25 @@ class AxisTest extends FlatSpec {
 
   "PrecedingAxis" should "select all nodes preceding in the document" in {
     // given
+    // xml in one line to avoid whitespace text nodes
     val root = <root><a><aa/><ab/></a><b><bb1><bbb/></bb1><bb2><bbb/></bb2></b><c><cc/></c></root>
+    //      <root>
+    //        <a>         0
+    //         <aa/>        0
+    //         <ab/>        1
+    //        </a>
+    //        <b>         1
+    //          <bb1>       0
+    //            <bbb/>      0
+    //          </bb1>
+    //          <bb2>       1
+    //            <bbb/>      0
+    //          </bb2>
+    //        </b>
+    //        <c>         2
+    //          <cc/>       0
+    //        </c>
+    //      </root>
 
     val a = (root \ "a").head
     val aa = (a \ "aa").head
@@ -264,10 +291,15 @@ class AxisTest extends FlatSpec {
     val bbb = (bb2 \ "bbb").head
 
     // when
-    val axis = PrecedingAxis(NodeWithAncestors(bb2, List(b, root)))
+    val axis = PrecedingAxis(NodeWithAncestors(bb2, List(b, root), NodePath(1, 1)))
 
     // then
-    assert(extractNodes(axis).toList === List(a, aa, ab, bb1, bbb))
+    assert(extractNodes(axis).toList === List(bbb, bb1, ab, aa, a))
+    assert(axis(0).path === NodePath(1, 0, 0))
+    assert(axis(1).path === NodePath(1, 0))
+    assert(axis(2).path === NodePath(0, 1))
+    assert(axis(3).path === NodePath(0, 0))
+    assert(axis(4).path === NodePath(0))
   }
 
   it should "return its name from toString" in {

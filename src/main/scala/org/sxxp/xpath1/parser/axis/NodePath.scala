@@ -7,9 +7,9 @@ class NodePath(val path: Vector[Int]) extends Ordered[NodePath] {
 
   override def compare(that: NodePath) = {
     var i = 0
-    while (i < this.path.length && i < that.path.length && path(i) == that.path(i)) {
+    while (i < this.path.length && i < that.path.length && path(i) == that.path(i))
       i += 1
-    }
+
     if (i == that.path.length && i == this.path.length)
       0
     else if (i == this.path.length)
@@ -20,21 +20,18 @@ class NodePath(val path: Vector[Int]) extends Ordered[NodePath] {
       this.path(i).compareTo(that.path(i))
   }
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[NodePath]
-
   override def equals(other: Any): Boolean = other match {
-    case that: NodePath =>
-      (that canEqual this) &&
-        path == that.path
+    case that: NodePath => path == that.path
     case _ => false
   }
 
-  override def hashCode(): Int = {
-    val state = Seq(path)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
+  override def hashCode = path.hashCode()
+
+  override def toString = s"NodePath(${path.mkString(", ")})"
 }
 
 object NodePath {
-  val root = new NodePath(Vector.empty[Int])
+  val empty = NodePath()
+
+  def apply(elem: Int*) = new NodePath(Vector(elem: _*))
 }

@@ -142,7 +142,7 @@ class EvaluatorTest extends FlatSpec {
   it should "select 'a|b'" in {
     // given
     val path = "a|b"
-    val expected = xml \ "a|b"
+    val expected = xml \ "_"
     // when
     val result = evaluate(xml, path)
     // then

@@ -20,7 +20,7 @@ import org.sxxp.xpath1.parser.step.Step
 import scala.xml.{TopScope, Node, Elem}
 import org.sxxp.xpath1.exp.XPathContext
 import org.sxxp.xpath1.utils.Logging
-import org.sxxp.xpath1.parser.axis.NodeWithAncestors
+import org.sxxp.xpath1.parser.axis.{NodePath, NodeWithAncestors}
 
 
 /**
@@ -33,7 +33,8 @@ case class AbsoluteLocationPath(steps: List[Step]) extends LocationPath with Log
 
   override def select(currentNode: NodeWithAncestors, context: XPathContext) = {
     // HACK
-    var curNodeSeq: Seq[NodeWithAncestors] = Seq(NodeWithAncestors(dummyRoot(context.rootNode.node), List.empty))
+    var curNodeSeq: Seq[NodeWithAncestors] = Seq(NodeWithAncestors(dummyRoot(context.rootNode.node), List.empty,
+      NodePath.empty))
     // TODO verify this if clause
     for (step <- steps if !curNodeSeq.isEmpty) {
       logger.debug("select: step = {}", step)

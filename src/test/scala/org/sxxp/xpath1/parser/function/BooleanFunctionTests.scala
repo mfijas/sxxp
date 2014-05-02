@@ -18,7 +18,7 @@ package org.sxxp.xpath1.parser.function
 
 import org.scalatest.FlatSpec
 import org.sxxp.xpath1.parser.types.{XString, XNodeSeq, XNumber, XBoolean}
-import org.sxxp.xpath1.parser.axis.NodeWithAncestors
+import org.sxxp.xpath1.parser.util.NodeWithAncestorsUtil.flatNodeSeqToXNodeSeq
 
 class BooleanFunctionTests extends FlatSpec {
 
@@ -99,7 +99,7 @@ class BooleanFunctionTests extends FlatSpec {
         <a></a> <a/>
       </root>
     val aNodes = xml \ "a"
-    val arg = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
+    val arg = flatNodeSeqToXNodeSeq(aNodes, xml)
 
     // when
     val result = BooleanFunction(arg)

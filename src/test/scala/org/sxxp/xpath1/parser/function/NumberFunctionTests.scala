@@ -17,8 +17,8 @@
 package org.sxxp.xpath1.parser.function
 
 import org.scalatest.FlatSpec
-import org.sxxp.xpath1.parser.types.{XNodeSeq, XBoolean, XString, XNumber}
-import org.sxxp.xpath1.parser.axis.NodeWithAncestors
+import org.sxxp.xpath1.parser.types.{XBoolean, XString, XNumber}
+import org.sxxp.xpath1.parser.util.NodeWithAncestorsUtil.flatNodeSeqToXNodeSeq
 
 class NumberFunctionTests extends FlatSpec {
 
@@ -85,7 +85,7 @@ class NumberFunctionTests extends FlatSpec {
       <a>789</a>
     </x1>
     val aNodes = xml \ "a"
-    val nodeSeq = XNodeSeq(aNodes.map(NodeWithAncestors(_, List(xml))))
+    val nodeSeq = flatNodeSeqToXNodeSeq(aNodes, xml)
 
     // when
     val result = NumberFunction(nodeSeq)

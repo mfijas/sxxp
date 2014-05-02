@@ -23,7 +23,7 @@ abstract class Axis {
 
 object AncestorAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors): Stream[NodeWithAncestors] =
-    nodeWithAncestors.parent.map(p => p #:: AncestorAxis(p)).getOrElse(Stream.empty)
+    nodeWithAncestors.parent.fold(Stream.empty[NodeWithAncestors])(p => p #:: AncestorAxis(p))
 
   override def toString = "AncestorAxis"
 }
@@ -46,7 +46,9 @@ object ChildAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) = {
     val node = nodeWithAncestors.node
     val ancestorsForChild = node :: nodeWithAncestors.ancestors
-    node.child.toStream.map(NodeWithAncestors(_, ancestorsForChild))
+    node.child.toStream.zipWithIndex.map {
+      case (child, index) => NodeWithAncestors(child, ancestorsForChild, nodeWithAncestors.path.append(index))
+    }
   }
 
   override def toString = "ChildAxis"
@@ -56,9 +58,9 @@ object DescendantAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors): Stream[NodeWithAncestors] = {
     val node = nodeWithAncestors.node
     val ancestorsForChild = node :: nodeWithAncestors.ancestors
-    node.child.toStream.flatMap {
-      child =>
-        val childWithParent = NodeWithAncestors(child, ancestorsForChild)
+    node.child.toStream.zipWithIndex.flatMap {
+      case (child, index) =>
+        val childWithParent = NodeWithAncestors(child, ancestorsForChild, nodeWithAncestors.path.append(index))
         childWithParent #:: DescendantAxis(childWithParent)
     }
   }
@@ -82,11 +84,14 @@ object FollowingAxis extends Axis {
 
 object FollowingSiblingAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) = {
-    val NodeWithAncestors(node, parents) = nodeWithAncestors
+    val NodeWithAncestors(_, parents, nodePath) = nodeWithAncestors
     if (!parents.isEmpty) {
-      val parent = parents.head
-      val nodeIndex = parent.child.indexOf(node)
-      parent.child.drop(nodeIndex + 1).toStream.map(n => NodeWithAncestors(n, parents))
+      val parentNode = parents.head
+      val parentPath = nodePath.parentPath
+      val nodeIndex = nodePath.path.last
+      parentNode.child.toStream.zipWithIndex.drop(nodeIndex + 1).map {
+        case (n, index) => NodeWithAncestors(n, parents, parentPath.append(index))
+      }
     } else Stream.empty
   }
 
@@ -110,7 +115,11 @@ object ParentAxis extends Axis {
 object PrecedingAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) = {
     // reverse is inefficient because it realizes whole stream -- can we do better?
-    AncestorOrSelfAxis(nodeWithAncestors).reverse.flatMap(n => PrecedingSiblingAxis(n).flatMap(n => DescendantOrSelfAxis(n)))
+    AncestorOrSelfAxis(nodeWithAncestors).reverse.flatMap {
+      n => PrecedingSiblingAxis(n).flatMap {
+        n => DescendantOrSelfAxis(n)
+      }
+    }.reverse
   }
 
   override def toString = "PrecedingAxis"
@@ -118,11 +127,14 @@ object PrecedingAxis extends Axis {
 
 object PrecedingSiblingAxis extends Axis {
   override def apply(nodeWithAncestors: NodeWithAncestors) = {
-    val NodeWithAncestors(node, parents) = nodeWithAncestors
+    val NodeWithAncestors(_, parents, nodePath) = nodeWithAncestors
     if (!parents.isEmpty) {
-      val parent = parents.head
-      val nodeIndex = parent.child.indexOf(node)
-      parent.child.take(nodeIndex).reverse.toStream.map(n => NodeWithAncestors(n, parents))
+      val parentNode = parents.head
+      val parentPath = nodePath.parentPath
+      val nodeIndex = nodePath.path.last
+      parentNode.child.toStream.zipWithIndex.take(nodeIndex).reverse.map {
+        case (n, index) => NodeWithAncestors(n, parents, parentPath.append(index))
+      }
     } else Stream.empty
   }
 
